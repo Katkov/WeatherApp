@@ -110,14 +110,9 @@ fun ScrollContent(forecast: ForecastModel) {
 
 @Composable
 fun ForecastBody(forecast: ForecastModel) {
-    CoordinatorLayout(bigHeaderContent = {
-        BigHeaderContent(forecast = forecast)
-    },
-        smallHeaderContent = {
-            SmallHeaderContent(forecast = forecast)
-        }, scrollContent = {
-            ScrollContent(forecast = forecast)
-        })
+    CoordinatorLayout(forecast = forecast) {
+        ScrollContent(forecast = forecast)
+    }
 }
 
 @Composable
