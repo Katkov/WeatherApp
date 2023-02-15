@@ -2,9 +2,7 @@ package com.example.weatherapp.ui.screen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -24,10 +22,7 @@ import com.example.weatherapp.model.ForecastModel
 import com.example.weatherapp.model.Forecastday
 import com.example.weatherapp.model.Hour
 import com.example.weatherapp.ui.theme.WeatherAppTheme
-import com.example.weatherapp.ui.widget.CoordinatorLayout
-import com.example.weatherapp.ui.widget.DebugPlaceholder
-import com.example.weatherapp.ui.widget.NoOrErrorSearchResult
-import com.example.weatherapp.ui.widget.ProgressView
+import com.example.weatherapp.ui.widget.*
 import com.example.weatherapp.utils.NetworkResult
 import com.example.weatherapp.utils.getAssetForecast
 
@@ -106,18 +101,11 @@ fun SmallHeaderContent(forecast: ForecastModel) {
 
 @Composable
 fun ScrollContent(forecast: ForecastModel) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .verticalScroll(rememberScrollState()),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Spacer(modifier = Modifier.height(32.dp))
-        Forecast7Hours(hour7Forecast = forecast.getSevenHoursAfterCurrent())
-        Spacer(modifier = Modifier.height(32.dp))
-        ForecastDays(days = forecast.forecast?.forecastday)
-        Spacer(modifier = Modifier.height(32.dp))
-    }
+    Spacer(modifier = Modifier.height(32.dp))
+    Forecast7Hours(hour7Forecast = forecast.getSevenHoursAfterCurrent())
+    Spacer(modifier = Modifier.height(32.dp))
+    ForecastDays(days = forecast.forecast?.forecastday)
+    Spacer(modifier = Modifier.height(620.dp))
 }
 
 @Composable

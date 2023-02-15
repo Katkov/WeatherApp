@@ -1,6 +1,5 @@
 package com.example.weatherapp.di
 
-import androidx.navigation.compose.rememberNavController
 import com.example.weatherapp.networking.NetworkingService
 import com.example.weatherapp.provider.CoroutineDispatcherProvider
 import com.example.weatherapp.provider.DispatcherProvider
@@ -50,10 +49,10 @@ class AppModule {
     private fun getGson() =
         GsonBuilder()
             .setDateFormat("yyyy-MM-dd HH:mm")
-            .create();
+            .create()
 
     companion object {
         const val NETWORK_REQUEST_TIMEOUT_SECONDS = 15L
-        const val BASE_URL = "http://api.weatherapi.com/v1/"
+        const val BASE_URL = "https://api.weatherapi.com/v1/"
     }
 }
