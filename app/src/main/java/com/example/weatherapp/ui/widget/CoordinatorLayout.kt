@@ -46,14 +46,8 @@ fun CoordinatorLayout(
                 source: NestedScrollSource
             ): Offset {
                 postScrollConsumedY.value = postScrollConsumedY.value + consumed.y
-                if (consumed.y < 0.0f) {
-                    val delta = consumed.y
-                    val newOffset = headerOffsetHeightPx.value + delta
-                    headerOffsetHeightPx.value = newOffset.coerceIn(-maxHeaderMove, 0f)
-                }
-                if (consumed.y > 0.0f && postScrollConsumedY.value >= headerOffsetHeightPx.value) {
-                    val delta = consumed.y
-                    val newOffset = headerOffsetHeightPx.value + delta
+                if (consumed.y < 0.0f || consumed.y > 0.0f && postScrollConsumedY.value >= headerOffsetHeightPx.value) {
+                    val newOffset = headerOffsetHeightPx.value + consumed.y
                     headerOffsetHeightPx.value = newOffset.coerceIn(-maxHeaderMove, 0f)
                 }
                 return super.onPostScroll(consumed, available, source)
@@ -74,8 +68,8 @@ fun CoordinatorLayout(
     val conditionOffset = imageOffset + imageHeight + smallMargin
     val conditionSize = MaterialTheme.typography.subtitle1.fontSize
     val temperatureOffset2 = locationOffset + locationHeight
-    val alpha : Float = (maxHeaderMove + headerOffsetHeightPx.value) / maxHeaderMove
-    val oppositeAlpha : Float = 1.0f - alpha
+    val alpha: Float = (maxHeaderMove + headerOffsetHeightPx.value) / maxHeaderMove
+    val oppositeAlpha: Float = 1.0f - alpha
 
     Box(
         Modifier
