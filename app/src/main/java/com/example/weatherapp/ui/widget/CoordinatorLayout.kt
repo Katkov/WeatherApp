@@ -1,6 +1,5 @@
 package com.example.weatherapp.ui.widget
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyItemScope
@@ -38,13 +37,26 @@ fun CoordinatorLayout(
     val maxHeaderMove = with(density) { (headerHeight - smallHeaderHeight).roundToPx().toFloat() }
     val headerOffsetHeightPx = remember { mutableStateOf(0f) }
     val headerOffsetHeightDp = with(density) { headerOffsetHeightPx.value.toDp() }
+    val postScrollConsumedY = remember { mutableStateOf(0f) }
     val nestedScrollConnection = remember {
         object : NestedScrollConnection {
-            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
-                val delta = available.y
-                val newOffset = headerOffsetHeightPx.value + delta
-                headerOffsetHeightPx.value = newOffset.coerceIn(-maxHeaderMove, 0f)
-                return Offset.Zero
+            override fun onPostScroll(
+                consumed: Offset,
+                available: Offset,
+                source: NestedScrollSource
+            ): Offset {
+                postScrollConsumedY.value = postScrollConsumedY.value + consumed.y
+                if (consumed.y < 0.0f) {
+                    val delta = consumed.y
+                    val newOffset = headerOffsetHeightPx.value + delta
+                    headerOffsetHeightPx.value = newOffset.coerceIn(-maxHeaderMove, 0f)
+                }
+                if (consumed.y > 0.0f && postScrollConsumedY.value >= headerOffsetHeightPx.value) {
+                    val delta = consumed.y
+                    val newOffset = headerOffsetHeightPx.value + delta
+                    headerOffsetHeightPx.value = newOffset.coerceIn(-maxHeaderMove, 0f)
+                }
+                return super.onPostScroll(consumed, available, source)
             }
         }
     }
@@ -90,7 +102,7 @@ fun CoordinatorLayout(
                     Text(
                         modifier = Modifier
                             .align(Alignment.TopCenter)
-                            .offset { IntOffset(0, temperatureOffset2 ) }
+                            .offset { IntOffset(0, temperatureOffset2) }
                             .alpha(oppositeAlpha),
                         text = "${forecast.current?.tempC?.toInt()}\u00B0 | ${forecast.current?.condition?.text ?: "None"}",
                         color = MaterialTheme.colors.primaryVariant,
