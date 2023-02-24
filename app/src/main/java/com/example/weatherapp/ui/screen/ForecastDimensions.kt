@@ -1,39 +1,42 @@
 package com.example.weatherapp.ui.screen
 
-object ForecastDimensions {
-    const val headerHeight: Int = 220
-    const val smallHeaderHeight: Int = 60
-    const val lazyColumnHeaderHeight: Int = 50
-    const val lazyColumnHoursSectionHeight: Int = 120
-    const val lazyColumnDaysSectionItemHeight: Int = 50
-    const val lazyColumnSquareSectionHeight: Int = 100
-    const val lazyColumnSectionPadding: Int = 16
-    const val numberOfSquareSections: Int = 5
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 
-    fun getLazyColumnContentHeight(lazyColumnDaysSectionItemsCount : Int) : Int {
-        return lazyColumnHeaderHeight + lazyColumnHoursSectionHeight + lazyColumnSectionPadding +
-                lazyColumnHeaderHeight + lazyColumnDaysSectionItemHeight * lazyColumnDaysSectionItemsCount + lazyColumnSectionPadding +
-                numberOfSquareSections * (lazyColumnHeaderHeight + lazyColumnSquareSectionHeight + lazyColumnSectionPadding)
+object ForecastDimensions {
+    val headerHeightDp: Dp = 220.dp
+    val smallHeaderHeightDp: Dp = 60.dp
+    val lazyColumnHeaderHeightDp: Dp = 50.dp
+    val lazyColumnHoursSectionHeightDp: Dp = 120.dp
+    val lazyColumnDaysSectionItemHeightDp: Dp = 50.dp
+    val lazyColumnSquareSectionHeightDp: Dp = 100.dp
+    val lazyColumnSectionPaddingDp: Dp = 16.dp
+    val numberOfSquareSections: Int = 5
+
+    fun getLazyColumnContentHeightDp(lazyColumnDaysSectionItemsCount : Int) : Dp {
+        return lazyColumnHeaderHeightDp + lazyColumnHoursSectionHeightDp + lazyColumnSectionPaddingDp +
+                lazyColumnHeaderHeightDp + lazyColumnDaysSectionItemHeightDp * lazyColumnDaysSectionItemsCount + lazyColumnSectionPaddingDp +
+                (lazyColumnHeaderHeightDp + lazyColumnSquareSectionHeightDp + lazyColumnSectionPaddingDp) * numberOfSquareSections
 
     }
 
-    val scrollOffsetToRoundUpFirstSectionHeader: Int
+    val scrollOffsetToRoundUpFirstSectionHeaderDp: Dp
         get() {
-            return lazyColumnHoursSectionHeight - lazyColumnHeaderHeight / 2
+            return lazyColumnHoursSectionHeightDp - lazyColumnHeaderHeightDp / 2
         }
 
-    fun getScrollOffsetToRoundUpSecondSectionHeader(lazyColumnDaysSectionItemsCount: Int): Int {
-        return lazyColumnHoursSectionHeight +
-                lazyColumnHeaderHeight / 2 +
-                lazyColumnSectionPadding +
-                lazyColumnDaysSectionItemHeight * lazyColumnDaysSectionItemsCount
+    fun getScrollOffsetToRoundUpSecondSectionHeaderDp(lazyColumnDaysSectionItemsCount: Int): Dp {
+        return lazyColumnHoursSectionHeightDp +
+                lazyColumnHeaderHeightDp / 2 +
+                lazyColumnSectionPaddingDp +
+                lazyColumnDaysSectionItemHeightDp * lazyColumnDaysSectionItemsCount
     }
 
-    fun getScrollOffsetToRoundUpThirdSectionHeader(lazyColumnDaysSectionItemsCount: Int): Int {
-        return  lazyColumnHoursSectionHeight +
-                3 * lazyColumnHeaderHeight / 2 +
-                2 * lazyColumnSectionPadding +
-                lazyColumnDaysSectionItemHeight * lazyColumnDaysSectionItemsCount +
-                lazyColumnSquareSectionHeight
+    fun getScrollOffsetToRoundUpThirdSectionHeaderDp(lazyColumnDaysSectionItemsCount: Int): Dp {
+        return  lazyColumnHoursSectionHeightDp +
+                lazyColumnHeaderHeightDp * 3 / 2 +
+                lazyColumnSectionPaddingDp * 2 +
+                lazyColumnDaysSectionItemHeightDp * lazyColumnDaysSectionItemsCount +
+                lazyColumnSquareSectionHeightDp
     }
 }

@@ -132,7 +132,7 @@ fun SmallHeader(modifier: Modifier, title: String, showBottomAngles: Boolean) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(ForecastDimensions.lazyColumnHeaderHeight.dp)
+                .height(ForecastDimensions.lazyColumnHeaderHeightDp)
                 .clip(
                     if (showBottomAngles) RoundedCornerShape(20.dp)
                     else RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
@@ -154,7 +154,7 @@ fun SmallHeader(modifier: Modifier, title: String, showBottomAngles: Boolean) {
 fun SmallCard(modifier: Modifier, value: String) {
     Box(modifier = modifier
         .fillMaxWidth()
-        .height(ForecastDimensions.lazyColumnSquareSectionHeight.dp)
+        .height(ForecastDimensions.lazyColumnSquareSectionHeightDp)
         .clip(shape = RoundedCornerShape(bottomStart = 20.dp, bottomEnd = 20.dp))
         .background(color = MaterialTheme.colors.primaryVariant)) {
         Text(
@@ -210,13 +210,13 @@ fun ForecastBody(forecast: ForecastModel) {
     val layoutHeightPx = with(density) {layoutHeight.roundToPx().toFloat()}
     //Lazy Column layout content height
     val lazyColumnDaysSectionItemsCount = forecast.forecast?.forecastday?.size ?: 0
-    val lazyColumnContentHeight = ForecastDimensions.getLazyColumnContentHeight(lazyColumnDaysSectionItemsCount).dp
+    val lazyColumnContentHeight = ForecastDimensions.getLazyColumnContentHeightDp(lazyColumnDaysSectionItemsCount)
     val lazyColumnContentHeightPx = with(density) {lazyColumnContentHeight.roundToPx().toFloat()}
     //Header height
-    val headerHeight = ForecastDimensions.headerHeight.dp
+    val headerHeight = ForecastDimensions.headerHeightDp
     val headerHeightPx = with(density) { headerHeight.roundToPx().toFloat() }
     //Small header height (The header which we see once we scroll up)
-    val smallHeaderHeight = ForecastDimensions.smallHeaderHeight.dp
+    val smallHeaderHeight = ForecastDimensions.smallHeaderHeightDp
     //Difference between Header and Small Header height
     val maxHeaderMove = with(density) { (headerHeight - smallHeaderHeight).roundToPx().toFloat() }
     //The scrollable height of the Lazy Column
@@ -227,21 +227,21 @@ fun ForecastBody(forecast: ForecastModel) {
     val postScrollConsumedY = remember { mutableStateOf(0f) }
     //First section visibility dimensions
     val scrollOffsetToRoundUpFirstSectionHeaderPx = with(density) {
-        ForecastDimensions.scrollOffsetToRoundUpFirstSectionHeader.dp.roundToPx().toFloat()
+        ForecastDimensions.scrollOffsetToRoundUpFirstSectionHeaderDp.roundToPx().toFloat()
     }
     val showBottomAngles1 = remember { mutableStateOf( false) }
     //Second section visibility dimensions
     val scrollOffsetToRoundUpSecondSectionHeaderPx = with(density) {
         ForecastDimensions
-            .getScrollOffsetToRoundUpSecondSectionHeader(lazyColumnDaysSectionItemsCount)
-            .dp.roundToPx().toFloat()
+            .getScrollOffsetToRoundUpSecondSectionHeaderDp(lazyColumnDaysSectionItemsCount)
+            .roundToPx().toFloat()
     }
     val showBottomAngles2 = remember { mutableStateOf( false) }
     //Third section visibility dimensions
     val scrollOffsetToRoundUpThirdSectionHeaderPx = with(density) {
         ForecastDimensions
-            .getScrollOffsetToRoundUpThirdSectionHeader(lazyColumnDaysSectionItemsCount)
-            .dp.roundToPx().toFloat()
+            .getScrollOffsetToRoundUpThirdSectionHeaderDp(lazyColumnDaysSectionItemsCount)
+            .roundToPx().toFloat()
     }
     val showBottomAngles3 = remember { mutableStateOf( false) }
     //Alpha value for header texts
@@ -284,7 +284,7 @@ fun ForecastBody(forecast: ForecastModel) {
 
             item(key = 1) {
                 Forecast7Hours(hour7Forecast = forecast.getSevenHoursAfterCurrent())
-                Spacer(modifier = Modifier.height(ForecastDimensions.lazyColumnSectionPadding.dp))
+                Spacer(modifier = Modifier.height(ForecastDimensions.lazyColumnSectionPaddingDp))
             }
 
             //2nd section
@@ -294,7 +294,7 @@ fun ForecastBody(forecast: ForecastModel) {
 
             item(key = 2) {
                 ForecastDays(days = forecast.forecast?.forecastday)
-                Spacer(modifier = Modifier.height(ForecastDimensions.lazyColumnSectionPadding.dp))
+                Spacer(modifier = Modifier.height(ForecastDimensions.lazyColumnSectionPaddingDp))
             }
 
             //3rd section
@@ -305,7 +305,7 @@ fun ForecastBody(forecast: ForecastModel) {
             item(key = 3) {
                 CombinedCards(value1 = forecast.current?.uv?.toString() ?: "0",
                     value2 = forecast.forecast?.forecastday?.get(0)?.astro?.sunrise ?: "0:00 AM")
-                Spacer(modifier = Modifier.height(ForecastDimensions.lazyColumnSectionPadding.dp))
+                Spacer(modifier = Modifier.height(ForecastDimensions.lazyColumnSectionPaddingDp))
             }
 
             //4th section
@@ -315,7 +315,7 @@ fun ForecastBody(forecast: ForecastModel) {
 
             item(key = 4) {
                 CombinedCards(value1 = "${forecast.current?.feelslikeC}°", value2 = "${forecast.current?.humidity}%")
-                Spacer(modifier = Modifier.height(ForecastDimensions.lazyColumnSectionPadding.dp))
+                Spacer(modifier = Modifier.height(ForecastDimensions.lazyColumnSectionPaddingDp))
             }
 
             //5th section
@@ -326,7 +326,7 @@ fun ForecastBody(forecast: ForecastModel) {
             item(key = 5) {
                 CombinedCards(value1 = "${forecast.current?.windKph?.toInt()} km/h",
                     value2 = "${forecast.current?.pressureMb?.toInt()} hPa")
-                Spacer(modifier = Modifier.height(ForecastDimensions.lazyColumnSectionPadding.dp))
+                Spacer(modifier = Modifier.height(ForecastDimensions.lazyColumnSectionPaddingDp))
             }
 
             //6th section
@@ -337,7 +337,7 @@ fun ForecastBody(forecast: ForecastModel) {
             item(key = 6) {
                 CombinedCards(value1 = forecast.forecast?.forecastday?.get(0)?.astro?.sunset ?: "0:00 AM",
                     value2 = forecast.forecast?.forecastday?.get(0)?.astro?.moonrise ?: "0:00 AM")
-                Spacer(modifier = Modifier.height(ForecastDimensions.lazyColumnSectionPadding.dp))
+                Spacer(modifier = Modifier.height(ForecastDimensions.lazyColumnSectionPaddingDp))
             }
 
             //7th section
@@ -348,7 +348,7 @@ fun ForecastBody(forecast: ForecastModel) {
             item(key = 7) {
                 CombinedCards(value1 = forecast.forecast?.forecastday?.get(0)?.astro?.moonset ?: "0:00 AM",
                     value2 = forecast.forecast?.forecastday?.get(0)?.astro?.moonPhase ?: "None")
-                Spacer(modifier = Modifier.height(ForecastDimensions.lazyColumnSectionPadding.dp))
+                Spacer(modifier = Modifier.height(ForecastDimensions.lazyColumnSectionPaddingDp))
             }
         }
         TopAppBar(
@@ -388,7 +388,7 @@ fun DayCard(day: Forecastday) {
     Row(
         modifier = Modifier
             .wrapContentHeight()
-            .height(ForecastDimensions.lazyColumnDaysSectionItemHeight.dp)
+            .height(ForecastDimensions.lazyColumnDaysSectionItemHeightDp)
             .padding(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -434,7 +434,7 @@ fun SectionHeader(title: String, showBottomAngles: Boolean) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(ForecastDimensions.lazyColumnHeaderHeight.dp)
+                .height(ForecastDimensions.lazyColumnHeaderHeightDp)
                 .padding(start = 16.dp, end = 16.dp)
                 .clip(
                     if (showBottomAngles) RoundedCornerShape(20.dp)
@@ -460,7 +460,7 @@ fun Forecast7Hours(hour7Forecast: List<Hour>?) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(ForecastDimensions.lazyColumnHoursSectionHeight.dp)
+            .height(ForecastDimensions.lazyColumnHoursSectionHeightDp)
             .padding(start = 16.dp, end = 16.dp)
             .clip(shape = RoundedCornerShape(bottomStart = 20.dp, bottomEnd = 20.dp))
             .background(color = MaterialTheme.colors.primaryVariant),
