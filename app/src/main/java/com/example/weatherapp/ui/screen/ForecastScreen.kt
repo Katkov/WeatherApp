@@ -17,6 +17,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -57,14 +58,15 @@ fun BigHeaderContent(forecast: ForecastModel, alpha: Float) {
     val locationOffset = with(density) { 8.dp.roundToPx() }
     val locationFontSize = MaterialTheme.typography.h5.fontSize
     val locationHeight = with(density) { locationFontSize.roundToPx() }
+    val temperatureOffset = locationHeight + smallMargin
     val temperatureFontSize = MaterialTheme.typography.h1.fontSize
     val temperatureHeight = with(density) { temperatureFontSize.roundToPx() }
-    val imageOffset = locationHeight + temperatureHeight + 2 * middleMargin
+    val imageOffset = locationHeight + temperatureHeight + 2 * middleMargin + smallMargin
     val imageSize = 32.dp
     val imageHeight = with(density) { imageSize.roundToPx() }
-    val conditionOffset = imageOffset + imageHeight + smallMargin
+    val conditionOffset = imageOffset + imageHeight + middleMargin
     val conditionSize = MaterialTheme.typography.subtitle1.fontSize
-    val temperatureOffset2 = locationOffset + locationHeight
+    val temperatureOffset2 = locationOffset + locationHeight + smallMargin
     Box(modifier = Modifier.fillMaxSize()) {
         Text(
             modifier = Modifier
@@ -86,7 +88,7 @@ fun BigHeaderContent(forecast: ForecastModel, alpha: Float) {
         Text(
             modifier = Modifier
                 .align(Alignment.TopCenter)
-                .offset { IntOffset(0, locationHeight) }
+                .offset { IntOffset(0, temperatureOffset) }
                 .alpha(alpha),
             text = "${forecast.current?.tempC?.toInt()}\u00B0",
             color = MaterialTheme.colors.primaryVariant,
@@ -206,8 +208,7 @@ fun CombinedHeader(title1 : String, title2: String, showBottomAngles: Boolean) {
 fun ForecastBody(forecast: ForecastModel) {
     val density = LocalDensity.current
     //Whole activity height
-    val layoutHeight = LocalConfiguration.current.screenHeightDp.dp
-    val layoutHeightPx = with(density) {layoutHeight.roundToPx().toFloat()}
+    var layoutHeightPx by remember { mutableStateOf(0f) }
     //Lazy Column layout content height
     val lazyColumnDaysSectionItemsCount = forecast.forecast?.forecastday?.size ?: 0
     val lazyColumnContentHeight = ForecastDimensions.getLazyColumnContentHeightDp(lazyColumnDaysSectionItemsCount)
@@ -244,6 +245,13 @@ fun ForecastBody(forecast: ForecastModel) {
             .roundToPx().toFloat()
     }
     val showBottomAngles3 = remember { mutableStateOf( false) }
+    //Forth section visibility dimensions
+    val scrollOffsetToRoundUpFourthSectionHeaderPx = with(density) {
+        ForecastDimensions
+            .getScrollOffsetToRoundUpFourthSectionHeaderDp(lazyColumnDaysSectionItemsCount)
+            .roundToPx().toFloat()
+    }
+    val showBottomAngles4 = remember { mutableStateOf( false) }
     //Alpha value for header texts
     val alpha: Float = (maxHeaderMove + headerOffsetHeightPx.value) / maxHeaderMove
 
@@ -263,6 +271,7 @@ fun ForecastBody(forecast: ForecastModel) {
                 showBottomAngles1.value = postScrollConsumedY.value + maxHeaderMove + scrollOffsetToRoundUpFirstSectionHeaderPx < 0.0f
                 showBottomAngles2.value = postScrollConsumedY.value + maxHeaderMove + scrollOffsetToRoundUpSecondSectionHeaderPx < 0.0f
                 showBottomAngles3.value = postScrollConsumedY.value + maxHeaderMove + scrollOffsetToRoundUpThirdSectionHeaderPx < 0.0f
+                showBottomAngles4.value = postScrollConsumedY.value + maxHeaderMove + scrollOffsetToRoundUpFourthSectionHeaderPx < 0.0f
                 return Offset.Zero
             }
         }
@@ -271,12 +280,16 @@ fun ForecastBody(forecast: ForecastModel) {
     Box(
         Modifier
             .fillMaxSize()
+            .onGloballyPositioned { layoutHeightPx = it.size.height.toFloat() }
             .nestedScroll(nestedScrollConnection)
     ) {
         LazyColumn(
             modifier = Modifier.padding(top = smallHeaderHeight),
             contentPadding = PaddingValues(top = headerHeight - smallHeaderHeight)
         ) {
+            item(key = 0) {
+                Spacer(modifier = Modifier.height(ForecastDimensions.lazyColumnTopOffsetDp))
+            }
             //1st section
             stickyHeader(key = "A") {
                 SectionHeader("HOURLY FORECAST", showBottomAngles1.value)
@@ -310,7 +323,7 @@ fun ForecastBody(forecast: ForecastModel) {
 
             //4th section
             stickyHeader(key = "D") {
-                CombinedHeader(title1 = "FEELS LIKE", title2 = "HUMIDITY", showBottomAngles = false)
+                CombinedHeader(title1 = "FEELS LIKE", title2 = "HUMIDITY", showBottomAngles = showBottomAngles4.value)
             }
 
             item(key = 4) {
