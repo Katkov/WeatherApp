@@ -50,7 +50,7 @@ fun ForecastScreen(mainViewModel: MainViewModel) {
 }
 
 @Composable
-fun BigHeaderContent(forecast: ForecastModel, alpha: Float) {
+fun ToolbarContent(forecast: ForecastModel, alpha: Float) {
     val oppositeAlpha: Float = 1.0f - alpha
     val density = LocalDensity.current
     val middleMargin = with(density) { 8.dp.roundToPx() }
@@ -61,7 +61,8 @@ fun BigHeaderContent(forecast: ForecastModel, alpha: Float) {
     val temperatureOffset = locationHeight + smallMargin
     val temperatureFontSize = MaterialTheme.typography.h1.fontSize
     val temperatureHeight = with(density) { temperatureFontSize.roundToPx() }
-    val imageOffset = locationHeight + temperatureHeight + 2 * middleMargin + smallMargin
+    val imageOffset =
+        locationHeight + temperatureHeight + 2 * middleMargin + smallMargin
     val imageSize = 32.dp
     val imageHeight = with(density) { imageSize.roundToPx() }
     val conditionOffset = imageOffset + imageHeight + middleMargin
@@ -207,25 +208,25 @@ fun CombinedHeader(title1 : String, title2: String, showBottomAngles: Boolean) {
 @Composable
 fun ForecastBody(forecast: ForecastModel) {
     val density = LocalDensity.current
-    //Whole activity height
+    val maxToolbarHeightDp = 220.dp
+    val maxToolbarHeightPx =
+        with(density) { maxToolbarHeightDp.roundToPx().toFloat() }
+    val minToolbarHeightDp = 60.dp
+    val toolbarDeltaPx = with(density) {
+        (maxToolbarHeightDp - minToolbarHeightDp).roundToPx().toFloat()
+    }
+    val listDaysSectionItemsCount = forecast.forecast?.forecastday?.size ?: 0
+    val listContentHeight = ForecastDimensions.getLazyColumnContentHeightDp(listDaysSectionItemsCount)
+    val listContentHeightPx = with(density) {listContentHeight.roundToPx().toFloat()}
     var layoutHeightPx by remember { mutableStateOf(0f) }
-    //Lazy Column layout content height
-    val lazyColumnDaysSectionItemsCount = forecast.forecast?.forecastday?.size ?: 0
-    val lazyColumnContentHeight = ForecastDimensions.getLazyColumnContentHeightDp(lazyColumnDaysSectionItemsCount)
-    val lazyColumnContentHeightPx = with(density) {lazyColumnContentHeight.roundToPx().toFloat()}
-    //Header height
-    val headerHeight = ForecastDimensions.headerHeightDp
-    val headerHeightPx = with(density) { headerHeight.roundToPx().toFloat() }
-    //Small header height (The header which we see once we scroll up)
-    val smallHeaderHeight = ForecastDimensions.smallHeaderHeightDp
-    //Difference between Header and Small Header height
-    val maxHeaderMove = with(density) { (headerHeight - smallHeaderHeight).roundToPx().toFloat() }
-    //The scrollable height of the Lazy Column
-    val approximateScrollMinValue = layoutHeightPx - headerHeightPx - lazyColumnContentHeightPx
-    //Current scrollable offset
-    val headerOffsetHeightPx = remember { mutableStateOf(0f) }
-    val headerOffsetHeightDp = with(density) { headerOffsetHeightPx.value.toDp() }
-    val postScrollConsumedY = remember { mutableStateOf(0f) }
+    val maxScrollOffset =
+        layoutHeightPx - maxToolbarHeightPx - listContentHeightPx
+    val toolbarOffsetHeightPx = remember { mutableStateOf(0f) }
+    val toolbarOffsetHeightDp =
+        with(density) { toolbarOffsetHeightPx.value.toDp() }
+    val scrollOffsetHeightPx = remember { mutableStateOf(0f) }
+    val alpha: Float = (toolbarDeltaPx + toolbarOffsetHeightPx.value) / toolbarDeltaPx
+
     //First section visibility dimensions
     val scrollOffsetToRoundUpFirstSectionHeaderPx = with(density) {
         ForecastDimensions.scrollOffsetToRoundUpFirstSectionHeaderDp.roundToPx().toFloat()
@@ -234,26 +235,24 @@ fun ForecastBody(forecast: ForecastModel) {
     //Second section visibility dimensions
     val scrollOffsetToRoundUpSecondSectionHeaderPx = with(density) {
         ForecastDimensions
-            .getScrollOffsetToRoundUpSecondSectionHeaderDp(lazyColumnDaysSectionItemsCount)
+            .getScrollOffsetToRoundUpSecondSectionHeaderDp(listDaysSectionItemsCount)
             .roundToPx().toFloat()
     }
     val showBottomAngles2 = remember { mutableStateOf( false) }
     //Third section visibility dimensions
     val scrollOffsetToRoundUpThirdSectionHeaderPx = with(density) {
         ForecastDimensions
-            .getScrollOffsetToRoundUpThirdSectionHeaderDp(lazyColumnDaysSectionItemsCount)
+            .getScrollOffsetToRoundUpThirdSectionHeaderDp(listDaysSectionItemsCount)
             .roundToPx().toFloat()
     }
     val showBottomAngles3 = remember { mutableStateOf( false) }
     //Forth section visibility dimensions
     val scrollOffsetToRoundUpFourthSectionHeaderPx = with(density) {
         ForecastDimensions
-            .getScrollOffsetToRoundUpFourthSectionHeaderDp(lazyColumnDaysSectionItemsCount)
+            .getScrollOffsetToRoundUpFourthSectionHeaderDp(listDaysSectionItemsCount)
             .roundToPx().toFloat()
     }
     val showBottomAngles4 = remember { mutableStateOf( false) }
-    //Alpha value for header texts
-    val alpha: Float = (maxHeaderMove + headerOffsetHeightPx.value) / maxHeaderMove
 
     val nestedScrollConnection = remember {
         object : NestedScrollConnection {
@@ -262,21 +261,26 @@ fun ForecastBody(forecast: ForecastModel) {
                 available: Offset,
                 source: NestedScrollSource
             ): Offset {
-                val postScrollOffset = postScrollConsumedY.value + consumed.y
-                postScrollConsumedY.value = postScrollOffset.coerceIn(approximateScrollMinValue, 0f)
-                if (consumed.y < 0.0f || consumed.y > 0.0f && postScrollConsumedY.value >= headerOffsetHeightPx.value) {
-                    val newOffset = headerOffsetHeightPx.value + consumed.y
-                    headerOffsetHeightPx.value = newOffset.coerceIn(-maxHeaderMove, 0f)
+                val postScrollOffset = scrollOffsetHeightPx.value + consumed.y
+                scrollOffsetHeightPx.value = postScrollOffset.coerceIn(maxScrollOffset, 0f)
+                if (consumed.y < 0.0f ||
+                    consumed.y > 0.0f &&
+                    scrollOffsetHeightPx.value >= toolbarOffsetHeightPx.value) {
+                    val newOffset = toolbarOffsetHeightPx.value + consumed.y
+                    toolbarOffsetHeightPx.value = newOffset.coerceIn(-toolbarDeltaPx, 0f)
                 }
-                showBottomAngles1.value = postScrollConsumedY.value + maxHeaderMove + scrollOffsetToRoundUpFirstSectionHeaderPx < 0.0f
-                showBottomAngles2.value = postScrollConsumedY.value + maxHeaderMove + scrollOffsetToRoundUpSecondSectionHeaderPx < 0.0f
-                showBottomAngles3.value = postScrollConsumedY.value + maxHeaderMove + scrollOffsetToRoundUpThirdSectionHeaderPx < 0.0f
-                showBottomAngles4.value = postScrollConsumedY.value + maxHeaderMove + scrollOffsetToRoundUpFourthSectionHeaderPx < 0.0f
+                showBottomAngles1.value = scrollOffsetHeightPx.value + toolbarDeltaPx +
+                        scrollOffsetToRoundUpFirstSectionHeaderPx < 0.0f
+                showBottomAngles2.value = scrollOffsetHeightPx.value + toolbarDeltaPx +
+                        scrollOffsetToRoundUpSecondSectionHeaderPx < 0.0f
+                showBottomAngles3.value = scrollOffsetHeightPx.value + toolbarDeltaPx +
+                        scrollOffsetToRoundUpThirdSectionHeaderPx < 0.0f
+                showBottomAngles4.value = scrollOffsetHeightPx.value + toolbarDeltaPx +
+                        scrollOffsetToRoundUpFourthSectionHeaderPx < 0.0f
                 return Offset.Zero
             }
         }
     }
-
     Box(
         Modifier
             .fillMaxSize()
@@ -284,9 +288,10 @@ fun ForecastBody(forecast: ForecastModel) {
             .nestedScroll(nestedScrollConnection)
     ) {
         LazyColumn(
-            modifier = Modifier.padding(top = smallHeaderHeight),
-            contentPadding = PaddingValues(top = headerHeight - smallHeaderHeight)
-        ) {
+            modifier = Modifier.padding(top = minToolbarHeightDp ),
+            contentPadding =
+            PaddingValues(top = maxToolbarHeightDp - minToolbarHeightDp )
+        )   {
             item(key = 0) {
                 Spacer(modifier = Modifier.height(ForecastDimensions.lazyColumnTopOffsetDp))
             }
@@ -365,10 +370,9 @@ fun ForecastBody(forecast: ForecastModel) {
             }
         }
         TopAppBar(
-            modifier = Modifier.height(headerHeight + headerOffsetHeightDp),
-            title = {
-                BigHeaderContent(forecast = forecast, alpha = alpha)
-            },
+            modifier = Modifier
+                .height(maxToolbarHeightDp + toolbarOffsetHeightDp),
+            title = { ToolbarContent(forecast = forecast, alpha = alpha) },
             elevation = 0.dp
         )
     }
@@ -526,11 +530,59 @@ fun HourCard(hour: Hour) {
 
 @Preview(showBackground = true)
 @Composable
-fun ForecastPreview() {
+fun ToolbarPreview() {
     WeatherAppTheme {
-        Scaffold {
-            val forecast = getAssetForecast(context = LocalContext.current)
-            ForecastBody(forecast = forecast)
-        }
+        val forecast = getAssetForecast(context = LocalContext.current)
+        ToolbarContent(forecast = forecast, alpha = 0.8f)
+    }
+}
+
+@Preview
+@Composable
+fun SectionHeaderPreview() {
+    WeatherAppTheme {
+        SectionHeader(title = "HOURLY FORECAST", showBottomAngles = false)
+    }
+}
+
+@Preview
+@Composable
+fun SectionHeaderRoundCornersPreview() {
+    WeatherAppTheme {
+        SectionHeader(title = "HOURLY FORECAST", showBottomAngles = true)
+    }
+}
+
+@Preview
+@Composable
+fun HoursSectionPreview() {
+    WeatherAppTheme {
+        val forecast = getAssetForecast(context = LocalContext.current)
+        Forecast7Hours(hour7Forecast = forecast.getSevenHoursAfterCurrent())
+    }
+}
+
+@Preview
+@Composable
+fun CombinedHeaderPreview() {
+    WeatherAppTheme {
+        CombinedHeader(title1 = "SUNSET", title2 = "MOON RISE", showBottomAngles = false)
+    }
+}
+
+@Preview
+@Composable
+fun CombinedHeaderRoundCornersPreview() {
+    WeatherAppTheme {
+        CombinedHeader(title1 = "SUNSET", title2 = "MOON RISE", showBottomAngles = true)
+    }
+}
+
+@Preview
+@Composable
+fun CombinedCardsPreview() {
+    WeatherAppTheme {
+        val forecast = getAssetForecast(context = LocalContext.current)
+        CombinedCards(value1 = "${forecast.current?.feelslikeC}°", value2 = "${forecast.current?.humidity}%")
     }
 }
