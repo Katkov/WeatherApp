@@ -254,18 +254,15 @@ fun ForecastBody(forecast: ForecastModel) {
 
     val nestedScrollConnection = remember {
         object : NestedScrollConnection {
-            override fun onPostScroll(
-                consumed: Offset,
-                available: Offset,
-                source: NestedScrollSource
-            ): Offset {
-                val postScrollOffset = scrollOffsetHeightPx.value + consumed.y
+            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+                val postScrollOffset = scrollOffsetHeightPx.value + available.y
                 scrollOffsetHeightPx.value = postScrollOffset.coerceIn(maxScrollOffset.value, 0f)
-                if (consumed.y < 0.0f ||
-                    consumed.y > 0.0f &&
-                    scrollOffsetHeightPx.value >= toolbarOffsetHeightPx.value) {
-                    val newOffset = toolbarOffsetHeightPx.value + consumed.y
+                if (available.y < 0.0f) {
+                    val newOffset = toolbarOffsetHeightPx.value + available.y
                     toolbarOffsetHeightPx.value = newOffset.coerceIn(-toolbarDeltaPx, 0f)
+                } else if (available.y > 0.0f &&
+                    scrollOffsetHeightPx.value >= toolbarOffsetHeightPx.value) {
+                    toolbarOffsetHeightPx.value = scrollOffsetHeightPx.value
                 }
                 showBottomAngles1.value = scrollOffsetHeightPx.value + toolbarDeltaPx +
                         scrollOffsetToRoundUpFirstSectionHeaderPx < 0.0f
@@ -279,6 +276,7 @@ fun ForecastBody(forecast: ForecastModel) {
             }
         }
     }
+
     Box(
         Modifier
             .fillMaxSize()
