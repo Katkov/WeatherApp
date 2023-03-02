@@ -218,9 +218,7 @@ fun ForecastBody(forecast: ForecastModel) {
     val listDaysSectionItemsCount = forecast.forecast?.forecastday?.size ?: 0
     val listContentHeight = ForecastDimensions.getLazyColumnContentHeightDp(listDaysSectionItemsCount)
     val listContentHeightPx = with(density) {listContentHeight.roundToPx().toFloat()}
-    var layoutHeightPx by remember { mutableStateOf(0f) }
-    val maxScrollOffset =
-        layoutHeightPx - maxToolbarHeightPx - listContentHeightPx
+    val maxScrollOffset = remember { mutableStateOf(0f) }
     val toolbarOffsetHeightPx = remember { mutableStateOf(0f) }
     val toolbarOffsetHeightDp =
         with(density) { toolbarOffsetHeightPx.value.toDp() }
@@ -262,7 +260,7 @@ fun ForecastBody(forecast: ForecastModel) {
                 source: NestedScrollSource
             ): Offset {
                 val postScrollOffset = scrollOffsetHeightPx.value + consumed.y
-                scrollOffsetHeightPx.value = postScrollOffset.coerceIn(maxScrollOffset, 0f)
+                scrollOffsetHeightPx.value = postScrollOffset.coerceIn(maxScrollOffset.value, 0f)
                 if (consumed.y < 0.0f ||
                     consumed.y > 0.0f &&
                     scrollOffsetHeightPx.value >= toolbarOffsetHeightPx.value) {
@@ -284,7 +282,10 @@ fun ForecastBody(forecast: ForecastModel) {
     Box(
         Modifier
             .fillMaxSize()
-            .onGloballyPositioned { layoutHeightPx = it.size.height.toFloat() }
+            .onGloballyPositioned {
+                val layoutHeight = it.size.height.toFloat()
+                maxScrollOffset.value = layoutHeight - maxToolbarHeightPx - listContentHeightPx
+            }
             .nestedScroll(nestedScrollConnection)
     ) {
         LazyColumn(
