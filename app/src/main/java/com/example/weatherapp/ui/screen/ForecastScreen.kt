@@ -208,10 +208,10 @@ fun CombinedHeader(title1 : String, title2: String, showBottomAngles: Boolean) {
 @Composable
 fun ForecastBody(forecast: ForecastModel) {
     val density = LocalDensity.current
-    val maxToolbarHeightDp = 220.dp
+    val maxToolbarHeightDp = ForecastDimensions.headerHeightDp
     val maxToolbarHeightPx =
         with(density) { maxToolbarHeightDp.roundToPx().toFloat() }
-    val minToolbarHeightDp = 60.dp
+    val minToolbarHeightDp = ForecastDimensions.smallHeaderHeightDp
     val toolbarDeltaPx = with(density) {
         (maxToolbarHeightDp - minToolbarHeightDp).roundToPx().toFloat()
     }
