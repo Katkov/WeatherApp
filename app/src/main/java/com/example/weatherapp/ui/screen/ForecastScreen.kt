@@ -1,5 +1,6 @@
 package com.example.weatherapp.ui.screen
 
+import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -208,10 +209,10 @@ fun CombinedHeader(title1 : String, title2: String, showBottomAngles: Boolean) {
 @Composable
 fun ForecastBody(forecast: ForecastModel) {
     val density = LocalDensity.current
-    val maxToolbarHeightDp = 220.dp
+    val maxToolbarHeightDp = ForecastDimensions.headerHeightDp
     val maxToolbarHeightPx =
         with(density) { maxToolbarHeightDp.roundToPx().toFloat() }
-    val minToolbarHeightDp = 60.dp
+    val minToolbarHeightDp = ForecastDimensions.smallHeaderHeightDp
     val toolbarDeltaPx = with(density) {
         (maxToolbarHeightDp - minToolbarHeightDp).roundToPx().toFloat()
     }
@@ -254,13 +255,41 @@ fun ForecastBody(forecast: ForecastModel) {
 
     val nestedScrollConnection = remember {
         object : NestedScrollConnection {
-            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
-                val postScrollOffset = scrollOffsetHeightPx.value + available.y
+//            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+//                val postScrollOffset = scrollOffsetHeightPx.value + available.y
+//                scrollOffsetHeightPx.value = postScrollOffset.coerceIn(maxScrollOffset.value, 0f)
+//                Log.d("onPreScroll", "MaxScrollOffset: ${maxScrollOffset.value}")
+//                Log.d("onPreScroll", "available.y: ${available.y}")
+//                Log.d("onPreScroll", "scrollOffset: ${scrollOffsetHeightPx.value}")
+//                if (available.y < 0.0f) {
+//                    val newOffset = toolbarOffsetHeightPx.value + available.y
+//                    toolbarOffsetHeightPx.value = newOffset.coerceIn(-toolbarDeltaPx, 0f)
+//                } else if (available.y > 0.0f &&
+//                    scrollOffsetHeightPx.value >= toolbarOffsetHeightPx.value) {
+//                    toolbarOffsetHeightPx.value = scrollOffsetHeightPx.value
+//                }
+//                showBottomAngles1.value = scrollOffsetHeightPx.value + toolbarDeltaPx +
+//                        scrollOffsetToRoundUpFirstSectionHeaderPx < 0.0f
+//                showBottomAngles2.value = scrollOffsetHeightPx.value + toolbarDeltaPx +
+//                        scrollOffsetToRoundUpSecondSectionHeaderPx < 0.0f
+//                showBottomAngles3.value = scrollOffsetHeightPx.value + toolbarDeltaPx +
+//                        scrollOffsetToRoundUpThirdSectionHeaderPx < 0.0f
+//                showBottomAngles4.value = scrollOffsetHeightPx.value + toolbarDeltaPx +
+//                        scrollOffsetToRoundUpFourthSectionHeaderPx < 0.0f
+//                return Offset.Zero
+//            }
+
+            override fun onPostScroll(
+                consumed: Offset,
+                available: Offset,
+                source: NestedScrollSource
+            ): Offset {
+                val postScrollOffset = scrollOffsetHeightPx.value + consumed.y + available.y
                 scrollOffsetHeightPx.value = postScrollOffset.coerceIn(maxScrollOffset.value, 0f)
-                if (available.y < 0.0f) {
-                    val newOffset = toolbarOffsetHeightPx.value + available.y
+                if (consumed.y < 0.0f) {
+                    val newOffset = toolbarOffsetHeightPx.value + consumed.y + available.y
                     toolbarOffsetHeightPx.value = newOffset.coerceIn(-toolbarDeltaPx, 0f)
-                } else if (available.y > 0.0f &&
+                } else if (consumed.y > 0.0f &&
                     scrollOffsetHeightPx.value >= toolbarOffsetHeightPx.value) {
                     toolbarOffsetHeightPx.value = scrollOffsetHeightPx.value
                 }
@@ -272,6 +301,11 @@ fun ForecastBody(forecast: ForecastModel) {
                         scrollOffsetToRoundUpThirdSectionHeaderPx < 0.0f
                 showBottomAngles4.value = scrollOffsetHeightPx.value + toolbarDeltaPx +
                         scrollOffsetToRoundUpFourthSectionHeaderPx < 0.0f
+                Log.d("onPostScroll", "MaxScrollOffset: ${maxScrollOffset.value}")
+                Log.d("onPostScroll", "consumed.y: ${consumed.y}")
+                Log.d("onPostScroll", "available.y: ${available.y}")
+                Log.d("onPostScroll", "scrollOffset: ${scrollOffsetHeightPx.value}")
+                Log.d("onPostScroll", "toolbarOffset: ${toolbarOffsetHeightPx.value}")
                 return Offset.Zero
             }
         }
@@ -376,7 +410,6 @@ fun ForecastBody(forecast: ForecastModel) {
         )
     }
 }
-
 @Composable
 fun ForecastDays(days: List<Forecastday>?) {
     if (days == null) return
