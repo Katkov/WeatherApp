@@ -210,16 +210,11 @@ fun CombinedHeader(title1 : String, title2: String, showBottomAngles: Boolean) {
 fun ForecastBody(forecast: ForecastModel) {
     val density = LocalDensity.current
     val maxToolbarHeightDp = ForecastDimensions.headerHeightDp
-    val maxToolbarHeightPx =
-        with(density) { maxToolbarHeightDp.roundToPx().toFloat() }
     val minToolbarHeightDp = ForecastDimensions.smallHeaderHeightDp
     val toolbarDeltaPx = with(density) {
         (maxToolbarHeightDp - minToolbarHeightDp).roundToPx().toFloat()
     }
     val listDaysSectionItemsCount = forecast.forecast?.forecastday?.size ?: 0
-    val listContentHeight = ForecastDimensions.getLazyColumnContentHeightDp(listDaysSectionItemsCount)
-    val listContentHeightPx = with(density) {listContentHeight.roundToPx().toFloat()}
-    val maxScrollOffset = remember { mutableStateOf(0f) }
     val toolbarOffsetHeightPx = remember { mutableStateOf(0f) }
     val toolbarOffsetHeightDp =
         with(density) { toolbarOffsetHeightPx.value.toDp() }
@@ -255,41 +250,24 @@ fun ForecastBody(forecast: ForecastModel) {
 
     val nestedScrollConnection = remember {
         object : NestedScrollConnection {
-//            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
-//                val postScrollOffset = scrollOffsetHeightPx.value + available.y
-//                scrollOffsetHeightPx.value = postScrollOffset.coerceIn(maxScrollOffset.value, 0f)
-//                Log.d("onPreScroll", "MaxScrollOffset: ${maxScrollOffset.value}")
-//                Log.d("onPreScroll", "available.y: ${available.y}")
-//                Log.d("onPreScroll", "scrollOffset: ${scrollOffsetHeightPx.value}")
-//                if (available.y < 0.0f) {
-//                    val newOffset = toolbarOffsetHeightPx.value + available.y
-//                    toolbarOffsetHeightPx.value = newOffset.coerceIn(-toolbarDeltaPx, 0f)
-//                } else if (available.y > 0.0f &&
-//                    scrollOffsetHeightPx.value >= toolbarOffsetHeightPx.value) {
-//                    toolbarOffsetHeightPx.value = scrollOffsetHeightPx.value
-//                }
-//                showBottomAngles1.value = scrollOffsetHeightPx.value + toolbarDeltaPx +
-//                        scrollOffsetToRoundUpFirstSectionHeaderPx < 0.0f
-//                showBottomAngles2.value = scrollOffsetHeightPx.value + toolbarDeltaPx +
-//                        scrollOffsetToRoundUpSecondSectionHeaderPx < 0.0f
-//                showBottomAngles3.value = scrollOffsetHeightPx.value + toolbarDeltaPx +
-//                        scrollOffsetToRoundUpThirdSectionHeaderPx < 0.0f
-//                showBottomAngles4.value = scrollOffsetHeightPx.value + toolbarDeltaPx +
-//                        scrollOffsetToRoundUpFourthSectionHeaderPx < 0.0f
-//                return Offset.Zero
-//            }
-
             override fun onPostScroll(
                 consumed: Offset,
                 available: Offset,
                 source: NestedScrollSource
             ): Offset {
-                val postScrollOffset = scrollOffsetHeightPx.value + consumed.y + available.y
-                scrollOffsetHeightPx.value = postScrollOffset.coerceIn(maxScrollOffset.value, 0f)
+                val postScrollOffset = scrollOffsetHeightPx.value + consumed.y
+                scrollOffsetHeightPx.value = postScrollOffset
+                if (consumed.y >= 0f && available.y > 0f) {
+                    // Reset the total content offset to zero when scrolling all the way down.
+                    // This will eliminate some float precision inaccuracies.
+                    scrollOffsetHeightPx.value = 0f
+                    toolbarOffsetHeightPx.value = 0f
+                }
                 if (consumed.y < 0.0f) {
-                    val newOffset = toolbarOffsetHeightPx.value + consumed.y + available.y
+                    val newOffset = toolbarOffsetHeightPx.value + consumed.y
                     toolbarOffsetHeightPx.value = newOffset.coerceIn(-toolbarDeltaPx, 0f)
-                } else if (consumed.y > 0.0f &&
+                }
+                if (consumed.y > 0.0f &&
                     scrollOffsetHeightPx.value >= toolbarOffsetHeightPx.value) {
                     toolbarOffsetHeightPx.value = scrollOffsetHeightPx.value
                 }
@@ -301,11 +279,11 @@ fun ForecastBody(forecast: ForecastModel) {
                         scrollOffsetToRoundUpThirdSectionHeaderPx < 0.0f
                 showBottomAngles4.value = scrollOffsetHeightPx.value + toolbarDeltaPx +
                         scrollOffsetToRoundUpFourthSectionHeaderPx < 0.0f
-                Log.d("onPostScroll", "MaxScrollOffset: ${maxScrollOffset.value}")
-                Log.d("onPostScroll", "consumed.y: ${consumed.y}")
-                Log.d("onPostScroll", "available.y: ${available.y}")
-                Log.d("onPostScroll", "scrollOffset: ${scrollOffsetHeightPx.value}")
-                Log.d("onPostScroll", "toolbarOffset: ${toolbarOffsetHeightPx.value}")
+                //Log.d("onPostScroll", "MaxScrollOffset: ${maxScrollOffset.value}")
+                //Log.d("onPostScroll", "consumed.y: ${consumed.y}")
+                //Log.d("onPostScroll", "available.y: ${available.y}")
+                //Log.d("onPostScroll", "scrollOffset: ${scrollOffsetHeightPx.value}")
+                //Log.d("onPostScroll", "toolbarOffset: ${toolbarOffsetHeightPx.value}")
                 return Offset.Zero
             }
         }
@@ -314,10 +292,6 @@ fun ForecastBody(forecast: ForecastModel) {
     Box(
         Modifier
             .fillMaxSize()
-            .onGloballyPositioned {
-                val layoutHeight = it.size.height.toFloat()
-                maxScrollOffset.value = layoutHeight - maxToolbarHeightPx - listContentHeightPx
-            }
             .nestedScroll(nestedScrollConnection)
     ) {
         LazyColumn(
