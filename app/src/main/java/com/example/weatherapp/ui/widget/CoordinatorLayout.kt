@@ -3,7 +3,7 @@ package com.example.weatherapp.ui.widget
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
-import androidx.compose.material.TopAppBar
+import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -29,16 +29,11 @@ fun CoordinatorLayout(
             .fillMaxSize()
             .nestedScroll(nestedScrollConnection)
     ) {
-        LazyColumn(modifier = modifier.padding(top = minToolBarHeightDp ),
-            contentPadding =
-            PaddingValues(top = maxToolBarHeightDp - minToolBarHeightDp )) {
-            content()
-        }
-        TopAppBar(
-            modifier = Modifier
-                .height(maxToolBarHeightDp + toolbarOffsetHeightDp),
-            title = toolbarContent,
-            elevation = 0.dp
-        )
+        LazyColumn(
+            modifier = modifier.padding(top = minToolBarHeightDp ),
+            contentPadding = PaddingValues(top = maxToolBarHeightDp - minToolBarHeightDp ),
+            content = content)
+        Surface(modifier = Modifier.height(maxToolBarHeightDp + toolbarOffsetHeightDp),
+                content = toolbarContent)
     }
 }

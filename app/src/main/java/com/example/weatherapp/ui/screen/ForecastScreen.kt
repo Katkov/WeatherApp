@@ -213,7 +213,12 @@ fun ForecastBodyFromLayout(forecast: ForecastModel) {
                                             maxToolbarHeightPx = maxToolbarHeightPx)
     CoordinatorLayout(
         behavior = ExitUntilCollapsedBehavior(toolbarState),
-        toolbarContent = { ToolbarContent(forecast = forecast, alpha = 1.0f) }) {
+        toolbarContent = {
+            TopAppBar(
+                modifier = Modifier.fillMaxSize(),
+                title = { ToolbarContent(forecast = forecast, alpha = 1.0f) },
+            )
+        }) {
         items(100) { index ->
             Text(modifier = Modifier
                 .fillMaxWidth()
