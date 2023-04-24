@@ -1,6 +1,5 @@
 package com.example.weatherapp.ui.screen
 
-import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -18,7 +17,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -32,6 +30,8 @@ import com.example.weatherapp.R
 import com.example.weatherapp.model.ForecastModel
 import com.example.weatherapp.model.Forecastday
 import com.example.weatherapp.model.Hour
+import com.example.weatherapp.ui.state.ExitUntilCollapsedBehavior
+import com.example.weatherapp.ui.state.rememberToolBarState
 import com.example.weatherapp.ui.theme.WeatherAppTheme
 import com.example.weatherapp.ui.widget.*
 import com.example.weatherapp.utils.NetworkResult
@@ -45,7 +45,7 @@ fun ForecastScreen(mainViewModel: MainViewModel) {
             is NetworkResult.Empty -> NoOrErrorSearchResult()
             is NetworkResult.Loading -> ProgressView()
             is NetworkResult.Error -> NoOrErrorSearchResult(state.message)
-            is NetworkResult.Loaded -> ForecastBody(forecast = state.data)
+            is NetworkResult.Loaded -> ForecastBodyFromLayout(forecast = state.data)
         }
     }
 }
@@ -204,6 +204,26 @@ fun CombinedHeader(title1 : String, title2: String, showBottomAngles: Boolean) {
             title = title2, showBottomAngles = showBottomAngles)
     }
 }
+@Composable
+fun ForecastBodyFromLayout(forecast: ForecastModel) {
+    val density = LocalDensity.current
+    val minToolbarHeightPx = with(density) { 60.dp.roundToPx().toFloat() }
+    val maxToolbarHeightPx = with(density) { 220.dp.roundToPx().toFloat() }
+    val toolbarState = rememberToolBarState(minToolbarHeightPx = minToolbarHeightPx,
+                                            maxToolbarHeightPx = maxToolbarHeightPx)
+    CoordinatorLayout(
+        behavior = ExitUntilCollapsedBehavior(toolbarState),
+        toolbarContent = { ToolbarContent(forecast = forecast, alpha = 1.0f) }) {
+        items(100) { index ->
+            Text(modifier = Modifier
+                .fillMaxWidth()
+                .height(50.dp),
+                text = "I'm item $index",
+                color = Color.Black)
+            Divider(modifier = Modifier.height(1.dp), color = Color.Black)
+        }
+    }
+}
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -248,7 +268,7 @@ fun ForecastBody(forecast: ForecastModel) {
     }
     val showBottomAngles4 = remember { mutableStateOf( false) }
 
-    val nestedScrollConnection = remember {
+    val nestedScrollConnection =
         object : NestedScrollConnection {
             override fun onPostScroll(
                 consumed: Offset,
@@ -257,12 +277,6 @@ fun ForecastBody(forecast: ForecastModel) {
             ): Offset {
                 val postScrollOffset = scrollOffsetHeightPx.value + consumed.y
                 scrollOffsetHeightPx.value = postScrollOffset
-                if (consumed.y >= 0f && available.y > 0f) {
-                    // Reset the total content offset to zero when scrolling all the way down.
-                    // This will eliminate some float precision inaccuracies.
-                    scrollOffsetHeightPx.value = 0f
-                    toolbarOffsetHeightPx.value = 0f
-                }
                 if (consumed.y < 0.0f) {
                     val newOffset = toolbarOffsetHeightPx.value + consumed.y
                     toolbarOffsetHeightPx.value = newOffset.coerceIn(-toolbarDeltaPx, 0f)
@@ -270,6 +284,12 @@ fun ForecastBody(forecast: ForecastModel) {
                 if (consumed.y > 0.0f &&
                     scrollOffsetHeightPx.value >= toolbarOffsetHeightPx.value) {
                     toolbarOffsetHeightPx.value = scrollOffsetHeightPx.value
+                }
+                if (consumed.y >= 0f && available.y > 0f) {
+                    // Reset the total content offset to zero when scrolling all the way down.
+                    // This will eliminate some float precision inaccuracies.
+                    scrollOffsetHeightPx.value = 0f
+                    toolbarOffsetHeightPx.value = 0f
                 }
                 showBottomAngles1.value = scrollOffsetHeightPx.value + toolbarDeltaPx +
                         scrollOffsetToRoundUpFirstSectionHeaderPx < 0.0f
@@ -287,7 +307,7 @@ fun ForecastBody(forecast: ForecastModel) {
                 return Offset.Zero
             }
         }
-    }
+
 
     Box(
         Modifier
