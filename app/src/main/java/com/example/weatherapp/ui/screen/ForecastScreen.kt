@@ -42,7 +42,7 @@ fun ForecastScreen(mainViewModel: MainViewModel) {
             is NetworkResult.Empty -> NoOrErrorSearchResult()
             is NetworkResult.Loading -> ProgressView()
             is NetworkResult.Error -> NoOrErrorSearchResult(state.message)
-            is NetworkResult.Loaded -> ForecastBodyFromLayout2(forecast = state.data)
+            is NetworkResult.Loaded -> ForecastBodyWithForecastCollapsedBehavior(forecast = state.data)
         }
     }
 }
@@ -202,7 +202,7 @@ fun CombinedHeader(title1 : String, title2: String, showBottomAngles: Boolean) {
     }
 }
 @Composable
-fun ForecastBodyFromLayout(forecast: ForecastModel) {
+fun ForecastBodyWithExitUntilCollapsedBehavior(forecast: ForecastModel) {
     val density = LocalDensity.current
     val minToolbarHeightPx = with(density) { 60.dp.roundToPx().toFloat() }
     val maxToolbarHeightPx = with(density) { 220.dp.roundToPx().toFloat() }
@@ -229,7 +229,7 @@ fun ForecastBodyFromLayout(forecast: ForecastModel) {
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun ForecastBodyFromLayout2(forecast: ForecastModel) {
+fun ForecastBodyWithForecastCollapsedBehavior(forecast: ForecastModel) {
     val density = LocalDensity.current
     val minToolbarHeightPx = with(density) { 60.dp.roundToPx().toFloat() }
     val maxToolbarHeightPx = with(density) { 220.dp.roundToPx().toFloat() }
@@ -260,6 +260,7 @@ fun ForecastBodyFromLayout2(forecast: ForecastModel) {
         scrollOffsetToRoundUpThirdSectionHeaderPx = scrollOffsetToRoundUpThirdSectionHeaderPx,
         scrollOffsetToRoundUpFourthSectionHeaderPx = scrollOffsetToRoundUpFourthSectionHeaderPx
     )
+
     CoordinatorLayout(
         behavior = ForecastCollapsedBehavior(forecastToolbarState),
         toolbarContent = {

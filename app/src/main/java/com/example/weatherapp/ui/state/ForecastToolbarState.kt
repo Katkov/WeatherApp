@@ -38,7 +38,7 @@ class ForecastToolbarState (
     var showBottomAngles2 by mutableStateOf(false)
     var showBottomAngles3 by mutableStateOf(false)
     var showBottomAngles4 by mutableStateOf(false)
-    var alpha: Float = (toolbarDeltaPx + toolbarOffsetHeightPx) / toolbarDeltaPx
+    var alpha by mutableStateOf(1.0f)
 }
 
 class ForecastCollapsedBehavior(
@@ -63,11 +63,7 @@ class ForecastNestedScrollConnection(private val state: ForecastToolbarState):
                 state.scrollOffsetToRoundUpThirdSectionHeaderPx < 0.0f
         state.showBottomAngles4 = state.scrollOffsetHeightPx + state.toolbarDeltaPx +
                 state.scrollOffsetToRoundUpFourthSectionHeaderPx < 0.0f
-        //Log.d("onPostScroll", "MaxScrollOffset: ${maxScrollOffset.value}")
-        //Log.d("onPostScroll", "consumed.y: ${consumed.y}")
-        //Log.d("onPostScroll", "available.y: ${available.y}")
-        //Log.d("onPostScroll", "scrollOffset: ${scrollOffsetHeightPx.value}")
-        //Log.d("onPostScroll", "toolbarOffset: ${toolbarOffsetHeightPx.value}")
+        state.alpha = (state.toolbarDeltaPx + state.toolbarOffsetHeightPx) / state.toolbarDeltaPx
         return result
     }
 }
