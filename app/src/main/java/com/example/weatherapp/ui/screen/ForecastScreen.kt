@@ -3,7 +3,6 @@ package com.example.weatherapp.ui.screen
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
@@ -11,12 +10,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
-import androidx.compose.ui.input.nestedscroll.NestedScrollSource
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -31,6 +26,8 @@ import com.example.weatherapp.model.ForecastModel
 import com.example.weatherapp.model.Forecastday
 import com.example.weatherapp.model.Hour
 import com.example.weatherapp.ui.state.ExitUntilCollapsedBehavior
+import com.example.weatherapp.ui.state.ForecastCollapsedBehavior
+import com.example.weatherapp.ui.state.rememberForecastToolbarState
 import com.example.weatherapp.ui.state.rememberToolBarState
 import com.example.weatherapp.ui.theme.WeatherAppTheme
 import com.example.weatherapp.ui.widget.*
@@ -45,7 +42,7 @@ fun ForecastScreen(mainViewModel: MainViewModel) {
             is NetworkResult.Empty -> NoOrErrorSearchResult()
             is NetworkResult.Loading -> ProgressView()
             is NetworkResult.Error -> NoOrErrorSearchResult(state.message)
-            is NetworkResult.Loaded -> ForecastBodyFromLayout(forecast = state.data)
+            is NetworkResult.Loaded -> ForecastBodyFromLayout2(forecast = state.data)
         }
     }
 }
@@ -232,183 +229,127 @@ fun ForecastBodyFromLayout(forecast: ForecastModel) {
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun ForecastBody(forecast: ForecastModel) {
+fun ForecastBodyFromLayout2(forecast: ForecastModel) {
     val density = LocalDensity.current
-    val maxToolbarHeightDp = ForecastDimensions.headerHeightDp
-    val minToolbarHeightDp = ForecastDimensions.smallHeaderHeightDp
-    val toolbarDeltaPx = with(density) {
-        (maxToolbarHeightDp - minToolbarHeightDp).roundToPx().toFloat()
-    }
+    val minToolbarHeightPx = with(density) { 60.dp.roundToPx().toFloat() }
+    val maxToolbarHeightPx = with(density) { 220.dp.roundToPx().toFloat() }
     val listDaysSectionItemsCount = forecast.forecast?.forecastday?.size ?: 0
-    val toolbarOffsetHeightPx = remember { mutableStateOf(0f) }
-    val toolbarOffsetHeightDp =
-        with(density) { toolbarOffsetHeightPx.value.toDp() }
-    val scrollOffsetHeightPx = remember { mutableStateOf(0f) }
-    val alpha: Float = (toolbarDeltaPx + toolbarOffsetHeightPx.value) / toolbarDeltaPx
-
-    //First section visibility dimensions
     val scrollOffsetToRoundUpFirstSectionHeaderPx = with(density) {
         ForecastDimensions.scrollOffsetToRoundUpFirstSectionHeaderDp.roundToPx().toFloat()
     }
-    val showBottomAngles1 = remember { mutableStateOf( false) }
-    //Second section visibility dimensions
     val scrollOffsetToRoundUpSecondSectionHeaderPx = with(density) {
         ForecastDimensions
             .getScrollOffsetToRoundUpSecondSectionHeaderDp(listDaysSectionItemsCount)
             .roundToPx().toFloat()
     }
-    val showBottomAngles2 = remember { mutableStateOf( false) }
-    //Third section visibility dimensions
     val scrollOffsetToRoundUpThirdSectionHeaderPx = with(density) {
         ForecastDimensions
             .getScrollOffsetToRoundUpThirdSectionHeaderDp(listDaysSectionItemsCount)
             .roundToPx().toFloat()
     }
-    val showBottomAngles3 = remember { mutableStateOf( false) }
-    //Forth section visibility dimensions
     val scrollOffsetToRoundUpFourthSectionHeaderPx = with(density) {
         ForecastDimensions
             .getScrollOffsetToRoundUpFourthSectionHeaderDp(listDaysSectionItemsCount)
             .roundToPx().toFloat()
     }
-    val showBottomAngles4 = remember { mutableStateOf( false) }
-
-    val nestedScrollConnection =
-        object : NestedScrollConnection {
-            override fun onPostScroll(
-                consumed: Offset,
-                available: Offset,
-                source: NestedScrollSource
-            ): Offset {
-                val postScrollOffset = scrollOffsetHeightPx.value + consumed.y
-                scrollOffsetHeightPx.value = postScrollOffset
-                if (consumed.y < 0.0f) {
-                    val newOffset = toolbarOffsetHeightPx.value + consumed.y
-                    toolbarOffsetHeightPx.value = newOffset.coerceIn(-toolbarDeltaPx, 0f)
-                }
-                if (consumed.y > 0.0f &&
-                    scrollOffsetHeightPx.value >= toolbarOffsetHeightPx.value) {
-                    toolbarOffsetHeightPx.value = scrollOffsetHeightPx.value
-                }
-                if (consumed.y >= 0f && available.y > 0f) {
-                    // Reset the total content offset to zero when scrolling all the way down.
-                    // This will eliminate some float precision inaccuracies.
-                    scrollOffsetHeightPx.value = 0f
-                    toolbarOffsetHeightPx.value = 0f
-                }
-                showBottomAngles1.value = scrollOffsetHeightPx.value + toolbarDeltaPx +
-                        scrollOffsetToRoundUpFirstSectionHeaderPx < 0.0f
-                showBottomAngles2.value = scrollOffsetHeightPx.value + toolbarDeltaPx +
-                        scrollOffsetToRoundUpSecondSectionHeaderPx < 0.0f
-                showBottomAngles3.value = scrollOffsetHeightPx.value + toolbarDeltaPx +
-                        scrollOffsetToRoundUpThirdSectionHeaderPx < 0.0f
-                showBottomAngles4.value = scrollOffsetHeightPx.value + toolbarDeltaPx +
-                        scrollOffsetToRoundUpFourthSectionHeaderPx < 0.0f
-                //Log.d("onPostScroll", "MaxScrollOffset: ${maxScrollOffset.value}")
-                //Log.d("onPostScroll", "consumed.y: ${consumed.y}")
-                //Log.d("onPostScroll", "available.y: ${available.y}")
-                //Log.d("onPostScroll", "scrollOffset: ${scrollOffsetHeightPx.value}")
-                //Log.d("onPostScroll", "toolbarOffset: ${toolbarOffsetHeightPx.value}")
-                return Offset.Zero
-            }
+    val forecastToolbarState = rememberForecastToolbarState(
+        minToolbarHeightPx = minToolbarHeightPx,
+        maxToolbarHeightPx = maxToolbarHeightPx,
+        scrollOffsetToRoundUpFirstSectionHeaderPx = scrollOffsetToRoundUpFirstSectionHeaderPx,
+        scrollOffsetToRoundUpSecondSectionHeaderPx = scrollOffsetToRoundUpSecondSectionHeaderPx,
+        scrollOffsetToRoundUpThirdSectionHeaderPx = scrollOffsetToRoundUpThirdSectionHeaderPx,
+        scrollOffsetToRoundUpFourthSectionHeaderPx = scrollOffsetToRoundUpFourthSectionHeaderPx
+    )
+    CoordinatorLayout(
+        behavior = ForecastCollapsedBehavior(forecastToolbarState),
+        toolbarContent = {
+            TopAppBar(
+                modifier = Modifier.fillMaxSize(),
+                title = { ToolbarContent(forecast = forecast, alpha = forecastToolbarState.alpha) },
+            )
+        }) {
+        item(key = 0) {
+            Spacer(modifier = Modifier.height(ForecastDimensions.lazyColumnTopOffsetDp))
+        }
+        //1st section
+        stickyHeader(key = "A") {
+            SectionHeader("HOURLY FORECAST", forecastToolbarState.showBottomAngles1)
         }
 
-
-    Box(
-        Modifier
-            .fillMaxSize()
-            .nestedScroll(nestedScrollConnection)
-    ) {
-        LazyColumn(
-            modifier = Modifier.padding(top = minToolbarHeightDp ),
-            contentPadding =
-            PaddingValues(top = maxToolbarHeightDp - minToolbarHeightDp )
-        )   {
-            item(key = 0) {
-                Spacer(modifier = Modifier.height(ForecastDimensions.lazyColumnTopOffsetDp))
-            }
-            //1st section
-            stickyHeader(key = "A") {
-                SectionHeader("HOURLY FORECAST", showBottomAngles1.value)
-            }
-
-            item(key = 1) {
-                Forecast7Hours(hour7Forecast = forecast.getSevenHoursAfterCurrent())
-                Spacer(modifier = Modifier.height(ForecastDimensions.lazyColumnSectionPaddingDp))
-            }
-
-            //2nd section
-            stickyHeader(key = "B") {
-                SectionHeader("${forecast.forecast?.forecastday?.size}-DAY FORECAST", showBottomAngles2.value)
-            }
-
-            item(key = 2) {
-                ForecastDays(days = forecast.forecast?.forecastday)
-                Spacer(modifier = Modifier.height(ForecastDimensions.lazyColumnSectionPaddingDp))
-            }
-
-            //3rd section
-            stickyHeader(key = "C") {
-                CombinedHeader(title1 = "UV INDEX", title2 = "SUNRISE", showBottomAngles = showBottomAngles3.value)
-            }
-
-            item(key = 3) {
-                CombinedCards(value1 = forecast.current?.uv?.toString() ?: "0",
-                    value2 = forecast.forecast?.forecastday?.get(0)?.astro?.sunrise ?: "0:00 AM")
-                Spacer(modifier = Modifier.height(ForecastDimensions.lazyColumnSectionPaddingDp))
-            }
-
-            //4th section
-            stickyHeader(key = "D") {
-                CombinedHeader(title1 = "FEELS LIKE", title2 = "HUMIDITY", showBottomAngles = showBottomAngles4.value)
-            }
-
-            item(key = 4) {
-                CombinedCards(value1 = "${forecast.current?.feelslikeC}°", value2 = "${forecast.current?.humidity}%")
-                Spacer(modifier = Modifier.height(ForecastDimensions.lazyColumnSectionPaddingDp))
-            }
-
-            //5th section
-            stickyHeader(key = "E") {
-                CombinedHeader(title1 = "WIND", title2 = "PRESSURE", showBottomAngles = false)
-            }
-
-            item(key = 5) {
-                CombinedCards(value1 = "${forecast.current?.windKph?.toInt()} km/h",
-                    value2 = "${forecast.current?.pressureMb?.toInt()} hPa")
-                Spacer(modifier = Modifier.height(ForecastDimensions.lazyColumnSectionPaddingDp))
-            }
-
-            //6th section
-            stickyHeader(key = "F") {
-                CombinedHeader(title1 = "SUNSET", title2 = "MOON RISE", showBottomAngles = false)
-            }
-
-            item(key = 6) {
-                CombinedCards(value1 = forecast.forecast?.forecastday?.get(0)?.astro?.sunset ?: "0:00 AM",
-                    value2 = forecast.forecast?.forecastday?.get(0)?.astro?.moonrise ?: "0:00 AM")
-                Spacer(modifier = Modifier.height(ForecastDimensions.lazyColumnSectionPaddingDp))
-            }
-
-            //7th section
-            stickyHeader(key = "G") {
-                CombinedHeader(title1 = "MOON SET", title2 = "MOON PHASE", showBottomAngles = false)
-            }
-
-            item(key = 7) {
-                CombinedCards(value1 = forecast.forecast?.forecastday?.get(0)?.astro?.moonset ?: "0:00 AM",
-                    value2 = forecast.forecast?.forecastday?.get(0)?.astro?.moonPhase ?: "None")
-                Spacer(modifier = Modifier.height(ForecastDimensions.lazyColumnSectionPaddingDp))
-            }
+        item(key = 1) {
+            Forecast7Hours(hour7Forecast = forecast.getSevenHoursAfterCurrent())
+            Spacer(modifier = Modifier.height(ForecastDimensions.lazyColumnSectionPaddingDp))
         }
-        TopAppBar(
-            modifier = Modifier
-                .height(maxToolbarHeightDp + toolbarOffsetHeightDp),
-            title = { ToolbarContent(forecast = forecast, alpha = alpha) },
-            elevation = 0.dp
-        )
+
+        //2nd section
+        stickyHeader(key = "B") {
+            SectionHeader("${forecast.forecast?.forecastday?.size}-DAY FORECAST",
+                forecastToolbarState.showBottomAngles2)
+        }
+
+        item(key = 2) {
+            ForecastDays(days = forecast.forecast?.forecastday)
+            Spacer(modifier = Modifier.height(ForecastDimensions.lazyColumnSectionPaddingDp))
+        }
+
+        //3rd section
+        stickyHeader(key = "C") {
+            CombinedHeader(title1 = "UV INDEX", title2 = "SUNRISE",
+                showBottomAngles = forecastToolbarState.showBottomAngles3)
+        }
+
+        item(key = 3) {
+            CombinedCards(value1 = forecast.current?.uv?.toString() ?: "0",
+                value2 = forecast.forecast?.forecastday?.get(0)?.astro?.sunrise ?: "0:00 AM")
+            Spacer(modifier = Modifier.height(ForecastDimensions.lazyColumnSectionPaddingDp))
+        }
+
+        //4th section
+        stickyHeader(key = "D") {
+            CombinedHeader(title1 = "FEELS LIKE", title2 = "HUMIDITY",
+                showBottomAngles = forecastToolbarState.showBottomAngles4)
+        }
+
+        item(key = 4) {
+            CombinedCards(value1 = "${forecast.current?.feelslikeC}°", value2 = "${forecast.current?.humidity}%")
+            Spacer(modifier = Modifier.height(ForecastDimensions.lazyColumnSectionPaddingDp))
+        }
+
+        //5th section
+        stickyHeader(key = "E") {
+            CombinedHeader(title1 = "WIND", title2 = "PRESSURE", showBottomAngles = false)
+        }
+
+        item(key = 5) {
+            CombinedCards(value1 = "${forecast.current?.windKph?.toInt()} km/h",
+                value2 = "${forecast.current?.pressureMb?.toInt()} hPa")
+            Spacer(modifier = Modifier.height(ForecastDimensions.lazyColumnSectionPaddingDp))
+        }
+
+        //6th section
+        stickyHeader(key = "F") {
+            CombinedHeader(title1 = "SUNSET", title2 = "MOON RISE", showBottomAngles = false)
+        }
+
+        item(key = 6) {
+            CombinedCards(value1 = forecast.forecast?.forecastday?.get(0)?.astro?.sunset ?: "0:00 AM",
+                value2 = forecast.forecast?.forecastday?.get(0)?.astro?.moonrise ?: "0:00 AM")
+            Spacer(modifier = Modifier.height(ForecastDimensions.lazyColumnSectionPaddingDp))
+        }
+
+        //7th section
+        stickyHeader(key = "G") {
+            CombinedHeader(title1 = "MOON SET", title2 = "MOON PHASE", showBottomAngles = false)
+        }
+
+        item(key = 7) {
+            CombinedCards(value1 = forecast.forecast?.forecastday?.get(0)?.astro?.moonset ?: "0:00 AM",
+                value2 = forecast.forecast?.forecastday?.get(0)?.astro?.moonPhase ?: "None")
+            Spacer(modifier = Modifier.height(ForecastDimensions.lazyColumnSectionPaddingDp))
+        }
     }
 }
+
 @Composable
 fun ForecastDays(days: List<Forecastday>?) {
     if (days == null) return
