@@ -4,23 +4,12 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 object ForecastDimensions {
-    val headerHeightDp: Dp = 220.dp
-    val smallHeaderHeightDp: Dp = 60.dp
     val lazyColumnTopOffsetDp: Dp = 2.dp
     val lazyColumnHeaderHeightDp: Dp = 50.dp
     val lazyColumnHoursSectionHeightDp: Dp = 120.dp
     val lazyColumnDaysSectionItemHeightDp: Dp = 50.dp
     val lazyColumnSquareSectionHeightDp: Dp = 100.dp
     val lazyColumnSectionPaddingDp: Dp = 16.dp
-    val numberOfSquareSections: Int = 5
-
-    fun getLazyColumnContentHeightDp(lazyColumnDaysSectionItemsCount : Int) : Dp {
-        return lazyColumnTopOffsetDp +
-                lazyColumnHeaderHeightDp + lazyColumnHoursSectionHeightDp + lazyColumnSectionPaddingDp +
-                lazyColumnHeaderHeightDp + lazyColumnDaysSectionItemHeightDp * lazyColumnDaysSectionItemsCount + lazyColumnSectionPaddingDp +
-                (lazyColumnHeaderHeightDp + lazyColumnSquareSectionHeightDp + lazyColumnSectionPaddingDp) * numberOfSquareSections
-
-    }
 
     val scrollOffsetToRoundUpFirstSectionHeaderDp: Dp
         get() {
