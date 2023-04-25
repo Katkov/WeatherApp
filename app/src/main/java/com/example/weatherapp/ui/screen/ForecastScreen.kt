@@ -39,7 +39,7 @@ fun ForecastScreen(mainViewModel: MainViewModel) {
             is NetworkResult.Empty -> NoOrErrorSearchResult()
             is NetworkResult.Loading -> ProgressView()
             is NetworkResult.Error -> NoOrErrorSearchResult(state.message)
-            is NetworkResult.Loaded -> ForecastBodyEnterAlwaysBehavior(forecast = state.data)
+            is NetworkResult.Loaded -> ForecastBodyWithEnterAlwaysCollapsedBehavior(forecast = state.data)
         }
     }
 }
@@ -200,7 +200,33 @@ fun CombinedHeader(title1 : String, title2: String, showBottomAngles: Boolean) {
 }
 
 @Composable
-fun ForecastBodyEnterAlwaysBehavior(forecast: ForecastModel) {
+fun ForecastBodyWithEnterAlwaysCollapsedBehavior(forecast: ForecastModel) {
+    val density = LocalDensity.current
+    val minToolbarHeightPx = with(density) { 60.dp.roundToPx().toFloat() }
+    val maxToolbarHeightPx = with(density) { 220.dp.roundToPx().toFloat() }
+    val toolbarState = rememberToolBarState(minToolbarHeightPx = minToolbarHeightPx,
+        maxToolbarHeightPx = maxToolbarHeightPx)
+    CoordinatorLayout(
+        behavior = EnterAlwaysCollapsedBehavior(toolbarState),
+        toolbarContent = {
+            TopAppBar(
+                modifier = Modifier.fillMaxSize(),
+                title = { ToolbarContent(forecast = forecast, alpha = 1.0f) },
+            )
+        }) {
+        items(100) { index ->
+            Text(modifier = Modifier
+                .fillMaxWidth()
+                .height(50.dp),
+                text = "I'm item $index",
+                color = Color.Black)
+            Divider(modifier = Modifier.height(1.dp), color = Color.Black)
+        }
+    }
+}
+
+@Composable
+fun ForecastBodyWithEnterAlwaysBehavior(forecast: ForecastModel) {
     val density = LocalDensity.current
     val minToolbarHeightPx = 0f
     val maxToolbarHeightPx = with(density) { 220.dp.roundToPx().toFloat() }

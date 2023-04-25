@@ -105,3 +105,36 @@ open class EnterAlwaysNestedScrollConnection(private val state: ToolbarState): N
         return Offset.Zero
     }
 }
+
+class EnterAlwaysCollapsedBehavior(
+    override val state: ToolbarState
+): ToolbarScrollBehavior {
+    override var nestedScrollConnection = EnterAlwaysCollapsedNestedScrollConnection(state)
+}
+
+open class EnterAlwaysCollapsedNestedScrollConnection(private val state: ToolbarState): NestedScrollConnection {
+    override fun onPostScroll(
+        consumed: Offset,
+        available: Offset,
+        source: NestedScrollSource
+    ): Offset {
+        val postScrollOffset = state.scrollOffsetHeightPx + consumed.y
+        state.scrollOffsetHeightPx = postScrollOffset
+        if (consumed.y < 0.0f) {
+            val newOffset = state.toolbarOffsetHeightPx + consumed.y
+            state.toolbarOffsetHeightPx = newOffset.coerceIn(-state.maxToolbarHeightPx, 0f)
+        }
+        if (consumed.y > 0.0f && state.scrollOffsetHeightPx < state.toolbarOffsetHeightPx) {
+            val newOffset = state.toolbarOffsetHeightPx + consumed.y
+            state.toolbarOffsetHeightPx = newOffset.coerceIn(-state.maxToolbarHeightPx, -state.toolbarDeltaPx)
+        }
+        if (consumed.y > 0.0f && state.scrollOffsetHeightPx >= state.toolbarOffsetHeightPx) {
+            state.toolbarOffsetHeightPx = state.scrollOffsetHeightPx
+        }
+        if (consumed.y >= 0f && available.y > 0f) {
+            state.scrollOffsetHeightPx = 0f
+            state.toolbarOffsetHeightPx = 0f
+        }
+        return Offset.Zero
+    }
+}
