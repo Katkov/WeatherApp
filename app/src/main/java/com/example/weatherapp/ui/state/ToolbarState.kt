@@ -20,7 +20,7 @@ fun rememberToolBarState(
 
 @Stable
 open class ToolbarState(
-    val minToolbarHeightPx: Float,
+    val minToolbarHeightPx: Float = 0f,
     val maxToolbarHeightPx: Float
 ) {
 
@@ -67,4 +67,14 @@ open class ExitUntilCollapsedNestedScrollConnection(private val state: ToolbarSt
         }
         return Offset.Zero
     }
+}
+
+class ScrollBehavior(
+    override val state: ToolbarState
+) : ToolbarScrollBehavior {
+    override var nestedScrollConnection = ScrollNestedScrollConnection(state)
+}
+
+open class ScrollNestedScrollConnection(state: ToolbarState):
+    ExitUntilCollapsedNestedScrollConnection(state) {
 }

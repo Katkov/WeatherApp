@@ -25,10 +25,7 @@ import com.example.weatherapp.R
 import com.example.weatherapp.model.ForecastModel
 import com.example.weatherapp.model.Forecastday
 import com.example.weatherapp.model.Hour
-import com.example.weatherapp.ui.state.ExitUntilCollapsedBehavior
-import com.example.weatherapp.ui.state.ForecastCollapsedBehavior
-import com.example.weatherapp.ui.state.rememberForecastToolbarState
-import com.example.weatherapp.ui.state.rememberToolBarState
+import com.example.weatherapp.ui.state.*
 import com.example.weatherapp.ui.theme.WeatherAppTheme
 import com.example.weatherapp.ui.widget.*
 import com.example.weatherapp.utils.NetworkResult
@@ -42,7 +39,7 @@ fun ForecastScreen(mainViewModel: MainViewModel) {
             is NetworkResult.Empty -> NoOrErrorSearchResult()
             is NetworkResult.Loading -> ProgressView()
             is NetworkResult.Error -> NoOrErrorSearchResult(state.message)
-            is NetworkResult.Loaded -> ForecastBodyWithForecastCollapsedBehavior(forecast = state.data)
+            is NetworkResult.Loaded -> ForecastBodyWithScrollBehavior(forecast = state.data)
         }
     }
 }
@@ -199,6 +196,32 @@ fun CombinedHeader(title1 : String, title2: String, showBottomAngles: Boolean) {
                 .weight(1f)
                 .padding(start = 8.dp),
             title = title2, showBottomAngles = showBottomAngles)
+    }
+}
+
+@Composable
+fun ForecastBodyWithScrollBehavior(forecast: ForecastModel) {
+    val density = LocalDensity.current
+    val minToolbarHeightPx = 0f
+    val maxToolbarHeightPx = with(density) { 220.dp.roundToPx().toFloat() }
+    val toolbarState = rememberToolBarState(minToolbarHeightPx = minToolbarHeightPx,
+        maxToolbarHeightPx = maxToolbarHeightPx)
+    CoordinatorLayout(
+        behavior = ScrollBehavior(toolbarState),
+        toolbarContent = {
+            TopAppBar(
+                modifier = Modifier.fillMaxSize(),
+                title = { ToolbarContent(forecast = forecast, alpha = 1.0f) },
+            )
+        }) {
+        items(100) { index ->
+            Text(modifier = Modifier
+                .fillMaxWidth()
+                .height(50.dp),
+                text = "I'm item $index",
+                color = Color.Black)
+            Divider(modifier = Modifier.height(1.dp), color = Color.Black)
+        }
     }
 }
 @Composable
