@@ -3,6 +3,9 @@ package com.example.weatherapp.ui.state
 import androidx.compose.runtime.*
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import com.katkov.coordinatorlayout.ExitUntilCollapsedNestedScrollConnection
+import com.katkov.coordinatorlayout.ToolbarScrollBehavior
+import com.katkov.coordinatorlayout.ToolbarState
 
 @Composable
 fun rememberForecastToolbarState(

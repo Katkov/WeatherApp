@@ -36,6 +36,7 @@ import com.example.weatherapp.ui.theme.WeatherAppTheme
 import com.example.weatherapp.ui.widget.*
 import com.example.weatherapp.utils.NetworkResult
 import com.example.weatherapp.utils.getAssetForecast
+import com.katkov.coordinatorlayout.*
 
 
 @Composable
@@ -45,7 +46,7 @@ fun ForecastScreen(mainViewModel: MainViewModel) {
             is NetworkResult.Empty -> NoOrErrorSearchResult()
             is NetworkResult.Loading -> ProgressView()
             is NetworkResult.Error -> NoOrErrorSearchResult(state.message)
-            is NetworkResult.Loaded -> ForecastBodyWithEnterAlwaysCollapsedBehavior(forecast = state.data)
+            is NetworkResult.Loaded -> ForecastBodyWithForecastCollapsedBehavior(forecast = state.data)
         }
     }
 }

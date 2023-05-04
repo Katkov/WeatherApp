@@ -10,10 +10,6 @@ import androidx.navigation.compose.rememberNavController
 import com.example.weatherapp.ui.screen.ForecastScreen
 import com.example.weatherapp.ui.theme.WeatherAppTheme
 import com.example.weatherapp.ui.screen.SearchScreen
-import com.example.weatherapp.ui.widget.CallLayout
-import com.example.weatherapp.ui.widget.CoordinatorLayout
-import com.example.weatherapp.ui.widget.DimensionSubcomposeExample
-import com.example.weatherapp.ui.widget.TopBarton
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
