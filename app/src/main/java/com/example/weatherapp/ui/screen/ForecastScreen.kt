@@ -1,14 +1,10 @@
 package com.example.weatherapp.ui.screen
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -16,11 +12,9 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
@@ -203,136 +197,6 @@ fun CombinedHeader(title1 : String, title2: String, showBottomAngles: Boolean) {
                 .weight(1f)
                 .padding(start = 8.dp),
             title = title2, showBottomAngles = showBottomAngles)
-    }
-}
-
-@Composable
-fun ForecastBodyWithEnterAlwaysCollapsedBehavior(forecast: ForecastModel) {
-    val density = LocalDensity.current
-    val minToolbarHeightPx = with(density) { 60.dp.roundToPx().toFloat() }
-    val maxToolbarHeightPx = with(density) { 220.dp.roundToPx().toFloat() }
-    val toolbarState = rememberToolBarState(minToolbarHeightPx = minToolbarHeightPx,
-        maxToolbarHeightPx = maxToolbarHeightPx)
-    CoordinatorLayout(
-        behavior = EnterAlwaysCollapsedBehavior(toolbarState),
-        toolbarContent = {
-            Box(modifier = Modifier.fillMaxSize()) {
-                Image(
-                    modifier = Modifier.fillMaxSize(),
-                    painter = painterResource(id = R.drawable.ic_launcher_background),
-                    contentDescription = "",
-                    contentScale = ContentScale.FillBounds
-                )
-                TopAppBar(
-                    title = { Text("TopBarton", color = Color.Black) },
-                    navigationIcon = {
-                        IconButton(onClick = { /* ... */ }) {
-                            Icon(
-                                imageVector = Icons.Filled.Menu,
-                                contentDescription = null,
-                                tint = Color.Black
-                            )
-                        }
-                    },
-                    actions = {
-                        IconButton(onClick = { /* ... */ }) {
-                            Icon(
-                                imageVector = Icons.Filled.Star,
-                                contentDescription = null,
-                                tint = Color.Black
-                            )
-                        }
-                    },
-                    elevation = 0.dp,
-                    backgroundColor = Color.Transparent
-                )
-            }
-        }) {
-        items(100) { index ->
-            Text(modifier = Modifier
-                .fillMaxWidth()
-                .height(50.dp),
-                text = "I'm item $index",
-                color = Color.Black)
-            Divider(modifier = Modifier.height(1.dp), color = Color.Black)
-        }
-    }
-}
-
-@Composable
-fun ForecastBodyWithEnterAlwaysBehavior(forecast: ForecastModel) {
-    val density = LocalDensity.current
-    val minToolbarHeightPx = 0f
-    val maxToolbarHeightPx = with(density) { 220.dp.roundToPx().toFloat() }
-    val toolbarState = rememberToolBarState(minToolbarHeightPx = minToolbarHeightPx,
-        maxToolbarHeightPx = maxToolbarHeightPx)
-    CoordinatorLayout(
-        behavior = EnterAlwaysBehavior(toolbarState),
-        toolbarContent = {
-            TopAppBar(
-                modifier = Modifier.fillMaxSize(),
-                title = { ToolbarContent(forecast = forecast, alpha = 1.0f) },
-            )
-        }) {
-        items(100) { index ->
-            Text(modifier = Modifier
-                .fillMaxWidth()
-                .height(50.dp),
-                text = "I'm item $index",
-                color = Color.Black)
-            Divider(modifier = Modifier.height(1.dp), color = Color.Black)
-        }
-    }
-}
-
-@Composable
-fun ForecastBodyWithScrollBehavior(forecast: ForecastModel) {
-    val density = LocalDensity.current
-    val minToolbarHeightPx = 0f
-    val maxToolbarHeightPx = with(density) { 220.dp.roundToPx().toFloat() }
-    val toolbarState = rememberToolBarState(minToolbarHeightPx = minToolbarHeightPx,
-        maxToolbarHeightPx = maxToolbarHeightPx)
-    CoordinatorLayout(
-        behavior = ScrollBehavior(toolbarState),
-        toolbarContent = {
-            TopAppBar(
-                modifier = Modifier.fillMaxSize(),
-                title = { ToolbarContent(forecast = forecast, alpha = 1.0f) },
-            )
-        }) {
-        items(100) { index ->
-            Text(modifier = Modifier
-                .fillMaxWidth()
-                .height(50.dp),
-                text = "I'm item $index",
-                color = Color.Black)
-            Divider(modifier = Modifier.height(1.dp), color = Color.Black)
-        }
-    }
-}
-@Composable
-fun ForecastBodyWithExitUntilCollapsedBehavior(forecast: ForecastModel) {
-    val density = LocalDensity.current
-    val minToolbarHeightPx = with(density) { 60.dp.roundToPx().toFloat() }
-    val maxToolbarHeightPx = with(density) { 220.dp.roundToPx().toFloat() }
-    val toolbarState = rememberToolBarState(minToolbarHeightPx = minToolbarHeightPx,
-                                            maxToolbarHeightPx = maxToolbarHeightPx)
-    CoordinatorLayout(
-        behavior = ExitUntilCollapsedBehavior(toolbarState),
-        toolbarContent = {
-            TopAppBar(
-                modifier = Modifier.fillMaxSize(),
-                title = { ToolbarContent(forecast = forecast, alpha = 1.0f) },
-            )
-        }) {
-        items(100) { index ->
-            Text(modifier = Modifier
-                .fillMaxWidth()
-                .height(50.dp),
-                text = "I'm item $index",
-                color = Color.Black)
-            Divider(modifier = Modifier.height(1.dp), color = Color.Black)
-        }
     }
 }
 
