@@ -23,7 +23,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun TopBarton() {
     val appBarState = rememberTopAppBarState()
-    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(appBarState)
+    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(appBarState)
     //- Initial height of action bar
     Log.d("TopBarton", "heightOffsetLimit: ${appBarState.heightOffsetLimit}")
     //- Starts from 0 and goes to HeightOffsetLimit

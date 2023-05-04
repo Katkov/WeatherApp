@@ -1,10 +1,14 @@
 package com.example.weatherapp.ui.screen
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -12,9 +16,11 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
@@ -209,10 +215,37 @@ fun ForecastBodyWithEnterAlwaysCollapsedBehavior(forecast: ForecastModel) {
     CoordinatorLayout(
         behavior = EnterAlwaysCollapsedBehavior(toolbarState),
         toolbarContent = {
-            TopAppBar(
-                modifier = Modifier.fillMaxSize(),
-                title = { ToolbarContent(forecast = forecast, alpha = 1.0f) },
-            )
+            Box(modifier = Modifier.fillMaxSize()) {
+                Image(
+                    modifier = Modifier.fillMaxSize(),
+                    painter = painterResource(id = R.drawable.ic_launcher_background),
+                    contentDescription = "",
+                    contentScale = ContentScale.FillBounds
+                )
+                TopAppBar(
+                    title = { Text("TopBarton", color = Color.Black) },
+                    navigationIcon = {
+                        IconButton(onClick = { /* ... */ }) {
+                            Icon(
+                                imageVector = Icons.Filled.Menu,
+                                contentDescription = null,
+                                tint = Color.Black
+                            )
+                        }
+                    },
+                    actions = {
+                        IconButton(onClick = { /* ... */ }) {
+                            Icon(
+                                imageVector = Icons.Filled.Star,
+                                contentDescription = null,
+                                tint = Color.Black
+                            )
+                        }
+                    },
+                    elevation = 0.dp,
+                    backgroundColor = Color.Transparent
+                )
+            }
         }) {
         items(100) { index ->
             Text(modifier = Modifier

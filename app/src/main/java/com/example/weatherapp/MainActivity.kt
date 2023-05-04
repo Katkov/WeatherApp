@@ -31,8 +31,6 @@ class MainActivity : ComponentActivity() {
                             mainViewModel.fetchForecast(it)
                             navController.navigate(Routes.Forecast.route)
                         }
-                        //CoordinatorLayout()
-                        //DimensionSubcomposeExample()
                         //TopBarton()
                     }
                     composable(Routes.Forecast.route) {
