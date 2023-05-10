@@ -3,6 +3,7 @@ package com.example.weatherapp.ui.screen
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
@@ -242,85 +243,90 @@ fun ForecastBodyWithForecastCollapsedBehavior(forecast: ForecastModel) {
                 title = { ToolbarContent(forecast = forecast, alpha = forecastToolbarState.alpha) },
             )
         }) {
-        item(key = 0) {
-            Spacer(modifier = Modifier.height(ForecastDimensions.lazyColumnTopOffsetDp))
-        }
-        //1st section
-        stickyHeader(key = "A") {
-            SectionHeader("HOURLY FORECAST", forecastToolbarState.showBottomAngles1)
-        }
+        forecastContent(forecast, forecastToolbarState)
+    }
+}
 
-        item(key = 1) {
-            Forecast7Hours(hour7Forecast = forecast.getSevenHoursAfterCurrent())
-            Spacer(modifier = Modifier.height(ForecastDimensions.lazyColumnSectionPaddingDp))
-        }
+@OptIn(ExperimentalFoundationApi::class)
+fun LazyListScope.forecastContent(forecast: ForecastModel, forecastToolbarState: ForecastToolbarState) {
+    item(key = 0) {
+        Spacer(modifier = Modifier.height(ForecastDimensions.lazyColumnTopOffsetDp))
+    }
+    //1st section
+    stickyHeader(key = "A") {
+        SectionHeader("HOURLY FORECAST", forecastToolbarState.showBottomAngles1)
+    }
 
-        //2nd section
-        stickyHeader(key = "B") {
-            SectionHeader("${forecast.forecast?.forecastday?.size}-DAY FORECAST",
-                forecastToolbarState.showBottomAngles2)
-        }
+    item(key = 1) {
+        Forecast7Hours(hour7Forecast = forecast.getSevenHoursAfterCurrent())
+        Spacer(modifier = Modifier.height(ForecastDimensions.lazyColumnSectionPaddingDp))
+    }
 
-        item(key = 2) {
-            ForecastDays(days = forecast.forecast?.forecastday)
-            Spacer(modifier = Modifier.height(ForecastDimensions.lazyColumnSectionPaddingDp))
-        }
+    //2nd section
+    stickyHeader(key = "B") {
+        SectionHeader("${forecast.forecast?.forecastday?.size}-DAY FORECAST",
+            forecastToolbarState.showBottomAngles2)
+    }
 
-        //3rd section
-        stickyHeader(key = "C") {
-            CombinedHeader(title1 = "UV INDEX", title2 = "SUNRISE",
-                showBottomAngles = forecastToolbarState.showBottomAngles3)
-        }
+    item(key = 2) {
+        ForecastDays(days = forecast.forecast?.forecastday)
+        Spacer(modifier = Modifier.height(ForecastDimensions.lazyColumnSectionPaddingDp))
+    }
 
-        item(key = 3) {
-            CombinedCards(value1 = forecast.current?.uv?.toString() ?: "0",
-                value2 = forecast.forecast?.forecastday?.get(0)?.astro?.sunrise ?: "0:00 AM")
-            Spacer(modifier = Modifier.height(ForecastDimensions.lazyColumnSectionPaddingDp))
-        }
+    //3rd section
+    stickyHeader(key = "C") {
+        CombinedHeader(title1 = "UV INDEX", title2 = "SUNRISE",
+            showBottomAngles = forecastToolbarState.showBottomAngles3)
+    }
 
-        //4th section
-        stickyHeader(key = "D") {
-            CombinedHeader(title1 = "FEELS LIKE", title2 = "HUMIDITY",
-                showBottomAngles = forecastToolbarState.showBottomAngles4)
-        }
+    item(key = 3) {
+        CombinedCards(value1 = forecast.current?.uv?.toString() ?: "0",
+            value2 = forecast.forecast?.forecastday?.get(0)?.astro?.sunrise ?: "0:00 AM")
+        Spacer(modifier = Modifier.height(ForecastDimensions.lazyColumnSectionPaddingDp))
+    }
 
-        item(key = 4) {
-            CombinedCards(value1 = "${forecast.current?.feelslikeC}°", value2 = "${forecast.current?.humidity}%")
-            Spacer(modifier = Modifier.height(ForecastDimensions.lazyColumnSectionPaddingDp))
-        }
+    //4th section
+    stickyHeader(key = "D") {
+        CombinedHeader(title1 = "FEELS LIKE", title2 = "HUMIDITY",
+            showBottomAngles = forecastToolbarState.showBottomAngles4)
+    }
 
-        //5th section
-        stickyHeader(key = "E") {
-            CombinedHeader(title1 = "WIND", title2 = "PRESSURE", showBottomAngles = false)
-        }
+    item(key = 4) {
+        CombinedCards(value1 = "${forecast.current?.feelslikeC}°", value2 = "${forecast.current?.humidity}%")
+        Spacer(modifier = Modifier.height(ForecastDimensions.lazyColumnSectionPaddingDp))
+    }
 
-        item(key = 5) {
-            CombinedCards(value1 = "${forecast.current?.windKph?.toInt()} km/h",
-                value2 = "${forecast.current?.pressureMb?.toInt()} hPa")
-            Spacer(modifier = Modifier.height(ForecastDimensions.lazyColumnSectionPaddingDp))
-        }
+    //5th section
+    stickyHeader(key = "E") {
+        CombinedHeader(title1 = "WIND", title2 = "PRESSURE", showBottomAngles = false)
+    }
 
-        //6th section
-        stickyHeader(key = "F") {
-            CombinedHeader(title1 = "SUNSET", title2 = "MOON RISE", showBottomAngles = false)
-        }
+    item(key = 5) {
+        CombinedCards(value1 = "${forecast.current?.windKph?.toInt()} km/h",
+            value2 = "${forecast.current?.pressureMb?.toInt()} hPa")
+        Spacer(modifier = Modifier.height(ForecastDimensions.lazyColumnSectionPaddingDp))
+    }
 
-        item(key = 6) {
-            CombinedCards(value1 = forecast.forecast?.forecastday?.get(0)?.astro?.sunset ?: "0:00 AM",
-                value2 = forecast.forecast?.forecastday?.get(0)?.astro?.moonrise ?: "0:00 AM")
-            Spacer(modifier = Modifier.height(ForecastDimensions.lazyColumnSectionPaddingDp))
-        }
+    //6th section
+    stickyHeader(key = "F") {
+        CombinedHeader(title1 = "SUNSET", title2 = "MOON RISE", showBottomAngles = false)
+    }
 
-        //7th section
-        stickyHeader(key = "G") {
-            CombinedHeader(title1 = "MOON SET", title2 = "MOON PHASE", showBottomAngles = false)
-        }
+    item(key = 6) {
+        CombinedCards(value1 = forecast.forecast?.forecastday?.get(0)?.astro?.sunset ?: "0:00 AM",
+            value2 = forecast.forecast?.forecastday?.get(0)?.astro?.moonrise ?: "0:00 AM")
+        Spacer(modifier = Modifier.height(ForecastDimensions.lazyColumnSectionPaddingDp))
+    }
 
-        item(key = 7) {
-            CombinedCards(value1 = forecast.forecast?.forecastday?.get(0)?.astro?.moonset ?: "0:00 AM",
-                value2 = forecast.forecast?.forecastday?.get(0)?.astro?.moonPhase ?: "None")
-            Spacer(modifier = Modifier.height(ForecastDimensions.lazyColumnSectionPaddingDp))
-        }
+    //7th section
+    stickyHeader(key = "G") {
+        CombinedHeader(title1 = "MOON SET", title2 = "MOON PHASE", showBottomAngles = false)
+    }
+
+    item(key = 7) {
+        CombinedCards(value1 = forecast.forecast?.forecastday?.get(0)?.astro?.moonset ?: "0:00 AM",
+            value2 = forecast.forecast?.forecastday?.get(0)?.astro?.moonPhase ?: "None")
+        Spacer(modifier = Modifier.height(ForecastDimensions.lazyColumnSectionPaddingDp))
     }
 }
 

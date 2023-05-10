@@ -27,7 +27,6 @@ class MainActivity : ComponentActivity() {
                             mainViewModel.fetchForecast(it)
                             navController.navigate(Routes.Forecast.route)
                         }
-                        //TopBarton()
                     }
                     composable(Routes.Forecast.route) {
                         val mainViewModel: MainViewModel by viewModels()
